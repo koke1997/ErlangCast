@@ -15,3 +15,6 @@ deps
 .rebar3
 _build/
 _checkouts/
+
+# Peer discovery related files
+peer_discovery.log
