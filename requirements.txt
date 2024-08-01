@@ -1,1 +1,1 @@
-unittest==1.0.0
+pytest

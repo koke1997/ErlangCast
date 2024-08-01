@@ -1,4 +1,4 @@
-name: Test and Deploy
+name: CI - Pytest
 
 on:
   pull_request:
@@ -24,4 +24,4 @@ jobs:
           pip install -r requirements.txt
 
       - name: Run Python tests
-        run: python -m unittest discover -s tests
+        run: pytest
