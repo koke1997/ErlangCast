@@ -1,5 +1,4 @@
 name: CI
-
 on:
   push:
     branches:
@@ -7,28 +6,28 @@ on:
   pull_request:
     branches:
       - main
-
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
     - name: Check out code
       uses: actions/checkout@v2
-
     - name: Set up Erlang/OTP
       uses: erlef/setup-beam@v1
       with:
         otp-version: 24.x
-
     - name: Install rebar3
       run: |
         wget https://s3.amazonaws.com/rebar3/rebar3
         chmod +x rebar3
         sudo mv rebar3 /usr/local/bin/
-
     - name: Install dependencies
       run: rebar3 get-deps
-
+    - name: Ensure meck is included
+      run: |
+        echo '{deps, [{meck, "0.9.2"}]}.' > rebar.config
+        rebar3 get-deps
+    - name: Compile the project
+      run: rebar3 compile
     - name: Run tests
       run: rebar3 eunit
