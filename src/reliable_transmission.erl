@@ -9,6 +9,7 @@ send_data(Peer, Data) ->
     send_data(Peer, Data, 0).
 
 send_data(_Peer, _Data, ?RETRY_LIMIT) ->
+    error_logger:error_msg("Retry limit reached for sending data to peer: ~p~n", [_Peer]),
     {error, retry_limit_reached};
 send_data(Peer, Data, RetryCount) ->
     % Send data to peer

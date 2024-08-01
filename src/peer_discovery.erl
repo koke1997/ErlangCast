@@ -4,13 +4,23 @@
 
 start() ->
     % Start the peer discovery process
-    {ok, _Pid} = gen_server:start_link({local, ?MODULE}, ?MODULE, [], []),
-    ok.
+    case gen_server:start_link({local, ?MODULE}, ?MODULE, [], []) of
+        {ok, _Pid} ->
+            ok;
+        {error, Reason} ->
+            error_logger:error_msg("Failed to start peer discovery: ~p~n", [Reason]),
+            {error, Reason}
+    end.
 
 stop() ->
     % Stop the peer discovery process
-    gen_server:stop(?MODULE),
-    ok.
+    case gen_server:stop(?MODULE) of
+        ok ->
+            ok;
+        {error, Reason} ->
+            error_logger:error_msg("Failed to stop peer discovery: ~p~n", [Reason]),
+            {error, Reason}
+    end.
 
 handle_message(Msg) ->
     % Handle incoming peer discovery messages
@@ -32,6 +42,8 @@ handle_cast(_Msg, State) ->
     {noreply, State}.
 
 handle_info(_Info, State) ->
+    % Recovery mechanism for peer discovery failures
+    error_logger:error_msg("Unexpected info received: ~p~n", [_Info]),
     {noreply, State}.
 
 terminate(_Reason, _State) ->

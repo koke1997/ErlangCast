@@ -61,3 +61,33 @@ end.
 % Receive data reliably
 reliable_transmission:receive_data(DataHandler).
 ```
+
+## Fault-Tolerant Architecture
+The fault-tolerant architecture ensures that the system can handle failures gracefully and continue operating. This includes error handling and recovery mechanisms in various modules.
+
+### Fault-Tolerant Features
+1. **Peer Discovery**: The `peer_discovery` module includes error handling and recovery mechanisms for peer discovery failures.
+2. **Reliable Transmission**: The `reliable_transmission` module includes error handling for retry limit reached and logs the error.
+3. **Video Chunking**: The `video_chunking` module includes error handling for file operations and chunking process.
+4. **System Configuration**: The `sys.config` file includes fault-tolerance configurations for the system.
+
+### Example
+```erlang
+% Example of error handling in peer discovery
+case peer_discovery:start() of
+    ok -> io:format("Peer discovery started successfully~n");
+    {error, Reason} -> io:format("Failed to start peer discovery: ~p~n", [Reason])
+end.
+
+% Example of error handling in reliable transmission
+case reliable_transmission:send_data(Peer, "Hello, peer!") of
+    {ok, data_sent} -> io:format("Data sent successfully~n");
+    {error, retry_limit_reached} -> io:format("Failed to send data: retry limit reached~n")
+end.
+
+% Example of error handling in video chunking
+case video_chunking:chunk_video("path/to/video.mp4", 1048576) of
+    {ok, Chunks} -> io:format("Video chunked successfully~n");
+    {error, Reason} -> io:format("Failed to chunk video: ~p~n", [Reason])
+end.
+```
