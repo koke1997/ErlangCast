@@ -139,18 +139,16 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Set up Erlang/OTP
-        uses: erlef/setup-beam@v1
+      - name: Set up Python
+        uses: actions/setup-python@v2
         with:
-          otp-version: 24.x
-          rebar3-version: 3.16.1
+          python-version: '3.x'
 
       - name: Install dependencies
-        run: rebar3 get-deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
 
-      - name: Run unit tests
-        run: rebar3 eunit --verbose
-
-      - name: Run integration tests
-        run: rebar3 ct --verbose
+      - name: Run Python tests
+        run: python -m unittest discover -s tests
 ```
