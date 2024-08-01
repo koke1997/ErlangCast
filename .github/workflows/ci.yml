@@ -21,6 +21,12 @@ jobs:
       with:
         otp-version: 24.x
 
+    - name: Install rebar3
+      run: |
+        wget https://s3.amazonaws.com/rebar3/rebar3
+        chmod +x rebar3
+        sudo mv rebar3 /usr/local/bin/
+
     - name: Install dependencies
       run: rebar3 get-deps
 
