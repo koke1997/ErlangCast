@@ -5,9 +5,11 @@
 -define(RETRY_LIMIT, 5).
 -define(ACK_TIMEOUT, 1000).
 
+% Send data to a peer with retry mechanism
 send_data(Peer, Data) ->
     send_data(Peer, Data, 0).
 
+% Handle retry limit reached for sending data
 send_data(_Peer, _Data, ?RETRY_LIMIT) ->
     error_logger:error_msg("Retry limit reached for sending data to peer: ~p~n", [_Peer]),
     {error, retry_limit_reached};
@@ -23,6 +25,7 @@ send_data(Peer, Data, RetryCount) ->
             send_data(Peer, Data, RetryCount + 1)
     end.
 
+% Receive data and process it using the provided data handler
 receive_data(DataHandler) ->
     receive
         {data, Data} ->
