@@ -40,3 +40,24 @@ video_chunking:chunk_video("path/to/video.mp4", 1048576).
 % Retrieve the first chunk of the video file
 {ok, Chunk} = video_chunking:get_chunk("path/to/video.mp4", 1).
 ```
+
+## Reliable Data Transmission
+The reliable data transmission feature ensures that data is transmitted reliably between peers, handling packet loss and retransmissions.
+
+### How to Use Reliable Data Transmission
+1. Send data reliably by calling the `reliable_transmission:send_data/2` function with the peer and data as arguments.
+2. Receive data reliably by calling the `reliable_transmission:receive_data/1` function with a data handler function as an argument.
+
+### Example
+```erlang
+% Send data reliably to a peer
+reliable_transmission:send_data(Peer, "Hello, peer!").
+
+% Define a data handler function
+DataHandler = fun(Data) ->
+    io:format("Received data: ~p~n", [Data])
+end.
+
+% Receive data reliably
+reliable_transmission:receive_data(DataHandler).
+```
