@@ -3,13 +3,23 @@
 -export([chunk_video/2, get_chunk/2]).
 
 chunk_video(VideoPath, ChunkSize) ->
-    {ok, VideoData} = file:read_file(VideoPath),
-    chunk_video_data(VideoData, ChunkSize, []).
+    case file:read_file(VideoPath) of
+        {ok, VideoData} ->
+            chunk_video_data(VideoData, ChunkSize, []);
+        {error, Reason} ->
+            error_logger:error_msg("Failed to read video file ~p: ~p~n", [VideoPath, Reason]),
+            {error, Reason}
+    end.
 
 get_chunk(VideoPath, ChunkIndex) ->
-    {ok, VideoData} = file:read_file(VideoPath),
-    Chunks = chunk_video_data(VideoData, 1048576, []),
-    lists:nth(VideoIndex, Chunks).
+    case file:read_file(VideoPath) of
+        {ok, VideoData} ->
+            Chunks = chunk_video_data(VideoData, 1048576, []),
+            lists:nth(VideoIndex, Chunks);
+        {error, Reason} ->
+            error_logger:error_msg("Failed to read video file ~p: ~p~n", [VideoPath, Reason]),
+            {error, Reason}
+    end.
 
 chunk_video_data(VideoData, ChunkSize, Acc) when byte_size(VideoData) =< ChunkSize ->
     lists:reverse([VideoData | Acc]);
