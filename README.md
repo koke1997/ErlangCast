@@ -106,3 +106,39 @@ To run the integration tests, use the following command:
 ```sh
 rebar3 ct
 ```
+
+## Deployment
+
+The deployment section provides instructions for deploying the ErlangCast system using the provided deployment script.
+
+### Deployment Instructions
+
+1. Navigate to the `scripts` directory:
+```sh
+cd scripts
+```
+
+2. Run the deployment script:
+```sh
+./deploy.sh
+```
+
+The deployment script will build the project using `rebar3` and start the server.
+
+## Monitoring
+
+The monitoring section provides instructions for monitoring the ErlangCast system using the provided monitoring script.
+
+### Monitoring Instructions
+
+1. Navigate to the `scripts` directory:
+```sh
+cd scripts
+```
+
+2. Run the monitoring script:
+```sh
+./monitor.sh
+```
+
+The monitoring script will monitor the system's performance, including CPU and memory usage, and logs for errors.
