@@ -112,3 +112,43 @@ To run the test coverage, use the following command:
 ```sh
 rebar3 as test cover
 ```
+
+## Continuous Integration with GitHub Actions
+This section explains how to set up and use GitHub Actions for CI/CD in this project.
+
+### Setting Up GitHub Actions
+1. Create a new file at `.github/workflows/ci.yml` in your repository.
+2. Define the workflow to run on push and pull requests to the main branch.
+3. Add steps to check out the code, set up Erlang/OTP, install dependencies, and run tests.
+
+### Example Workflow Configuration
+```yaml
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Check out code
+      uses: actions/checkout@v2
+
+    - name: Set up Erlang/OTP
+      uses: erlef/setup-beam@v1
+      with:
+        otp-version: 24.x
+
+    - name: Install dependencies
+      run: rebar3 get-deps
+
+    - name: Run tests
+      run: rebar3 eunit
+```
