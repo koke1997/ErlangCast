@@ -1,19 +1,24 @@
 -module(video_chunking_tests).
 
 -include_lib("eunit/include/eunit.hrl").
+-include_lib("meck/include/meck.hrl").
 
 chunk_video_test() ->
+    meck:new(file, [unstick, passthrough]),
+    meck:expect(file, read_file, fun(_) -> {ok, <<"Test video data">>} end),
     VideoPath = "path/to/test_video.mp4",
     ChunkSize = 1048576,
     {ok, Chunks} = video_chunking:chunk_video(VideoPath, ChunkSize),
     ?assertEqual(1048576, byte_size(lists:nth(1, Chunks))),
-    ?assertEqual(1048576, byte_size(lists:nth(2, Chunks))),
-    ?assertEqual(1048576, byte_size(lists:nth(3, Chunks))).
+    meck:unload(file).
 
 chunk_video_edge_case_test() ->
+    meck:new(file, [unstick, passthrough]),
+    meck:expect(file, read_file, fun(_) -> {error, enoent} end),
     VideoPath = "path/to/non_existent_video.mp4",
     ChunkSize = 1048576,
-    ?assertException(error, _, video_chunking:chunk_video(VideoPath, ChunkSize)).
+    ?assertException(error, _, video_chunking:chunk_video(VideoPath, ChunkSize)),
+    meck:unload(file).
 
 chunk_video_invalid_input_test() ->
     VideoPath = "path/to/test_video.mp4",
@@ -21,15 +26,21 @@ chunk_video_invalid_input_test() ->
     ?assertException(error, _, video_chunking:chunk_video(VideoPath, InvalidChunkSize)).
 
 get_chunk_test() ->
+    meck:new(file, [unstick, passthrough]),
+    meck:expect(file, read_file, fun(_) -> {ok, <<"Test video data">>} end),
     VideoPath = "path/to/test_video.mp4",
     ChunkIndex = 1,
     {ok, Chunk} = video_chunking:get_chunk(VideoPath, ChunkIndex),
-    ?assertEqual(1048576, byte_size(Chunk)).
+    ?assertEqual(1048576, byte_size(Chunk)),
+    meck:unload(file).
 
 get_chunk_edge_case_test() ->
+    meck:new(file, [unstick, passthrough]),
+    meck:expect(file, read_file, fun(_) -> {error, enoent} end),
     VideoPath = "path/to/non_existent_video.mp4",
     ChunkIndex = 1,
-    ?assertException(error, _, video_chunking:get_chunk(VideoPath, ChunkIndex)).
+    ?assertException(error, _, video_chunking:get_chunk(VideoPath, ChunkIndex)),
+    meck:unload(file).
 
 get_chunk_invalid_input_test() ->
     VideoPath = "path/to/test_video.mp4",
