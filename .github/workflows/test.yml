@@ -27,19 +27,3 @@ jobs:
 
       - name: Run integration tests
         run: rebar3 ct --verbose
-
-  deploy:
-    runs-on: ubuntu-latest
-    needs: build
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Deploy to GitHub Pages
-        run: |
-          git config --global user.name 'github-actions'
-          git config --global user.email 'github-actions@github.com'
-          git add docs/index.html
-          git commit -m "Deploy demo page"
-          git push origin main
