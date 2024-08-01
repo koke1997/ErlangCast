@@ -91,3 +91,18 @@ case video_chunking:chunk_video("path/to/video.mp4", 1048576) of
     {error, Reason} -> io:format("Failed to chunk video: ~p~n", [Reason])
 end.
 ```
+
+## Testing
+The testing section provides instructions for running unit tests and integration tests to ensure the system works as expected.
+
+### Running Unit Tests
+To run the unit tests, use the following command:
+```sh
+rebar3 eunit
+```
+
+### Running Integration Tests
+To run the integration tests, use the following command:
+```sh
+rebar3 ct
+```
