@@ -13,3 +13,15 @@ receive_data_test() ->
     end,
     self() ! {data, <<"Test data">>},
     reliable_transmission:receive_data(DataHandler).
+
+send_data_with_retry_test() ->
+    Peer = self(),
+    Data = <<"Test data">>,
+    ?assertEqual({ok, data_sent}, reliable_transmission:send_data(Peer, Data)).
+
+receive_data_with_retry_test() ->
+    DataHandler = fun(Data) ->
+        ?assertEqual(<<"Test data">>, Data)
+    end,
+    self() ! {data, <<"Test data">>},
+    reliable_transmission:receive_data(DataHandler).

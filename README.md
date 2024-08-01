@@ -106,3 +106,9 @@ To run the integration tests, use the following command:
 ```sh
 rebar3 ct
 ```
+
+### Running Test Coverage
+To run the test coverage, use the following command:
+```sh
+rebar3 as test cover
+```
