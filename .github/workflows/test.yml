@@ -1,0 +1,45 @@
+name: Test and Deploy
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Erlang/OTP
+        uses: erlef/setup-beam@v1
+        with:
+          otp-version: 24.x
+          rebar3-version: 3.16.1
+
+      - name: Install dependencies
+        run: rebar3 get-deps
+
+      - name: Run unit tests
+        run: rebar3 eunit --verbose
+
+      - name: Run integration tests
+        run: rebar3 ct --verbose
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Deploy to GitHub Pages
+        run: |
+          git config --global user.name 'github-actions'
+          git config --global user.email 'github-actions@github.com'
+          git add docs/index.html
+          git commit -m "Deploy demo page"
+          git push origin main

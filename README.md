@@ -112,3 +112,45 @@ To run the test coverage, use the following command:
 ```sh
 rebar3 as test cover
 ```
+
+## Automated Testing Workflow
+The automated testing workflow uses GitHub Actions to run tests automatically after a pull request is made. This ensures that the tests are always up-to-date and provides immediate feedback on the status of the code.
+
+### How to View Test Results
+1. Navigate to the "Actions" tab in your GitHub repository.
+2. Select the workflow run you want to view.
+3. Check the logs for detailed information about the test results and verbose output.
+
+### Example Workflow File
+The following is an example of a GitHub Actions workflow file (`.github/workflows/ci.yml`) that automates the test execution:
+```yaml
+name: CI
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Erlang/OTP
+        uses: erlef/setup-beam@v1
+        with:
+          otp-version: 24.x
+          rebar3-version: 3.16.1
+
+      - name: Install dependencies
+        run: rebar3 get-deps
+
+      - name: Run unit tests
+        run: rebar3 eunit --verbose
+
+      - name: Run integration tests
+        run: rebar3 ct --verbose
+```

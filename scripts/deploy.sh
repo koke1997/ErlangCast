@@ -21,4 +21,12 @@ rebar3 compile || handle_error "Failed to build the project"
 log_message "Starting the server..."
 erl -pa _build/default/lib/*/ebin -sname erlangcast -s erlangcast start || handle_error "Failed to start the server"
 
+# Deploy the demo page to GitHub Pages
+log_message "Deploying the demo page to GitHub Pages..."
+git config --global user.name 'github-actions'
+git config --global user.email 'github-actions@github.com'
+git add docs/index.html
+git commit -m "Deploy demo page"
+git push origin main || handle_error "Failed to deploy the demo page"
+
 log_message "Deployment completed successfully"
