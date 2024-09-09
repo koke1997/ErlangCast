@@ -154,3 +154,33 @@ jobs:
       - name: Run integration tests
         run: rebar3 ct --verbose
 ```
+
+## Running the Project Locally
+
+### On Linux
+
+To run the project locally on Linux, follow these steps:
+
+1. Open a terminal and navigate to the project directory.
+2. Run the installation script to install all dependencies:
+   ```sh
+   ./scripts/install_dependencies.sh
+   ```
+3. Run the project using the local run script:
+   ```sh
+   ./scripts/run_local.sh
+   ```
+
+### On Windows
+
+To run the project locally on Windows, follow these steps:
+
+1. Open a command prompt and navigate to the project directory.
+2. Run the installation script to install all dependencies:
+   ```sh
+   scripts\install_dependencies.bat
+   ```
+3. Run the project using the local run script:
+   ```sh
+   scripts\run_local.bat
+   ```
