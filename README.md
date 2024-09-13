@@ -234,3 +234,35 @@ To run the Scala connector locally, follow these steps:
    ```sh
    sbt run
    ```
+
+## Running the Scala Frontend Locally
+
+### On Linux
+
+To run the Scala frontend locally on Linux, follow these steps:
+
+1. Open a terminal and navigate to the project directory.
+2. Ensure Scala and sbt are installed on your system.
+3. Compile the Scala code using sbt:
+   ```sh
+   sbt compile
+   ```
+4. Run the Scala frontend:
+   ```sh
+   sbt run
+   ```
+
+### On Windows
+
+To run the Scala frontend locally on Windows, follow these steps:
+
+1. Open a command prompt and navigate to the project directory.
+2. Ensure Scala and sbt are installed on your system.
+3. Compile the Scala code using sbt:
+   ```sh
+   sbt compile
+   ```
+4. Run the Scala frontend:
+   ```sh
+   sbt run
+   ```
