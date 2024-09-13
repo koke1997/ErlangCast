@@ -1,6 +1,6 @@
-import akka.actor.{Actor, ActorSystem, Props}
-import akka.pattern.ask
-import akka.util.Timeout
+import org.apache.pekko.actor.{Actor, ActorSystem, Props}
+import org.apache.pekko.pattern.ask
+import org.apache.pekko.util.Timeout
 import scala.concurrent.duration._
 import scala.concurrent.{Await, Future}
 import scala.util.{Failure, Success}
