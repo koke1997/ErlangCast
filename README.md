@@ -92,6 +92,27 @@ case video_chunking:chunk_video("path/to/video.mp4", 1048576) of
 end.
 ```
 
+## Scala Connector
+The Scala connector enables communication between the Erlang server and the Scala videoserver, leveraging Akka for actor-based communication.
+
+### How to Use Scala Connector
+1. Set up Scala and necessary dependencies.
+2. Use the `ScalaConnector` object to send and receive messages between Scala and Erlang.
+
+### Example
+```scala
+import ScalaConnector._
+
+object Main extends App {
+  // Send a message to Erlang
+  sendToErlang("Hello, Erlang!")
+
+  // Receive a message from Erlang
+  val message = Await.result(receiveFromErlang(), 5.seconds)
+  println(s"Received message from Erlang: $message")
+}
+```
+
 ## Testing
 The testing section provides instructions for running unit tests and integration tests to ensure the system works as expected.
 
@@ -183,4 +204,19 @@ To run the project locally on Windows, follow these steps:
 3. Run the project using the local run script:
    ```sh
    scripts\run_local.bat
+   ```
+
+### On Scala
+
+To run the Scala connector locally, follow these steps:
+
+1. Ensure Scala and sbt are installed on your system.
+2. Navigate to the project directory.
+3. Compile the Scala code using sbt:
+   ```sh
+   sbt compile
+   ```
+4. Run the Scala connector:
+   ```sh
+   sbt run
    ```
