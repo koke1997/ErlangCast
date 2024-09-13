@@ -1,4 +1,4 @@
-name: CI
+name: CI - Scala Frontend
 
 on:
   pull_request:
@@ -46,3 +46,8 @@ jobs:
 
       - name: Run Scala tests
         run: sbt test
+
+      - name: Set up and test Scala frontend
+        run: |
+          sbt compile
+          sbt run

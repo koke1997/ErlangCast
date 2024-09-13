@@ -93,7 +93,7 @@ end.
 ```
 
 ## Scala Connector
-The Scala connector enables communication between the Erlang server and the Scala videoserver, leveraging Akka for actor-based communication.
+The Scala connector enables communication between the Erlang server and the Scala videoserver, leveraging Akka for actor-based communication. Scala is also used to raise the needed frontend to interact with the videoserver.
 
 ### How to Use Scala Connector
 1. Set up Scala and necessary dependencies.
@@ -112,6 +112,20 @@ object Main extends App {
   println(s"Received message from Erlang: $message")
 }
 ```
+
+## Setting Up and Running the Scala Frontend
+To set up and run the Scala frontend, follow these steps:
+
+1. Ensure Scala and sbt are installed on your system.
+2. Navigate to the project directory.
+3. Compile the Scala code using sbt:
+   ```sh
+   sbt compile
+   ```
+4. Run the Scala frontend:
+   ```sh
+   sbt run
+   ```
 
 ## Testing
 The testing section provides instructions for running unit tests and integration tests to ensure the system works as expected.
