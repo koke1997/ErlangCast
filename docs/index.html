@@ -17,26 +17,52 @@
             margin: 20px auto;
             display: block;
         }
+        select {
+            margin: 20px;
+            padding: 10px;
+            font-size: 16px;
+        }
     </style>
 </head>
 <body>
     <h1>Webcam Test</h1>
-    <video id="webcam" autoplay></video>
+    <select id="streamingOptions">
+        <option value="webcam">Webcam</option>
+        <option value="hls">HLS</option>
+        <option value="dash">DASH</option>
+    </select>
+    <video id="videoElement" autoplay controls></video>
     <script>
-        const video = document.getElementById('webcam');
+        const videoElement = document.getElementById('videoElement');
+        const streamingOptions = document.getElementById('streamingOptions');
 
-        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-            navigator.mediaDevices.getUserMedia({ video: true })
-                .then(function(stream) {
-                    video.srcObject = stream;
-                    video.play();
-                })
-                .catch(function(error) {
-                    console.error("Error accessing webcam: ", error);
-                });
-        } else {
-            console.error("getUserMedia not supported by this browser.");
-        }
+        streamingOptions.addEventListener('change', function() {
+            const selectedOption = streamingOptions.value;
+            if (selectedOption === 'webcam') {
+                if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                    navigator.mediaDevices.getUserMedia({ video: true })
+                        .then(function(stream) {
+                            videoElement.srcObject = stream;
+                            videoElement.play();
+                        })
+                        .catch(function(error) {
+                            console.error("Error accessing webcam: ", error);
+                        });
+                } else {
+                    console.error("getUserMedia not supported by this browser.");
+                }
+            } else if (selectedOption === 'hls') {
+                videoElement.src = 'path/to/hls/playlist.m3u8';
+                videoElement.play();
+            } else if (selectedOption === 'dash') {
+                videoElement.src = 'path/to/dash/manifest.mpd';
+                videoElement.play();
+            }
+        });
+
+        // Initialize with webcam option
+        streamingOptions.value = 'webcam';
+        streamingOptions.dispatchEvent(new Event('change'));
     </script>
     <!-- Scala is used for the frontend -->
 </body>

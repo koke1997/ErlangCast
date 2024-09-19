@@ -266,3 +266,34 @@ To run the Scala frontend locally on Windows, follow these steps:
    ```sh
    sbt run
    ```
+
+## HLS and DASH Streaming Options
+The HLS and DASH streaming options allow for adaptive bitrate streaming, providing a better user experience by adjusting the video quality based on the viewer's network conditions.
+
+### How to Use HLS Streaming
+1. Ensure the HLS library is installed and configured in your project.
+2. Use the `hls_streaming:start/2` function to start HLS streaming with the video file path and output directory as arguments.
+3. Retrieve the HLS playlist using the `hls_streaming:get_playlist/1` function with the output directory as an argument.
+
+### Example
+```erlang
+% Start HLS streaming
+hls_streaming:start("path/to/video.mp4", "path/to/output").
+
+% Retrieve the HLS playlist
+{ok, Playlist} = hls_streaming:get_playlist("path/to/output").
+```
+
+### How to Use DASH Streaming
+1. Ensure the DASH library is installed and configured in your project.
+2. Use the `dash_streaming:start/2` function to start DASH streaming with the video file path and output directory as arguments.
+3. Retrieve the DASH manifest using the `dash_streaming:get_manifest/1` function with the output directory as an argument.
+
+### Example
+```erlang
+% Start DASH streaming
+dash_streaming:start("path/to/video.mp4", "path/to/output").
+
+% Retrieve the DASH manifest
+{ok, Manifest} = dash_streaming:get_manifest("path/to/output").
+```
