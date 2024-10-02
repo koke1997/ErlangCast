@@ -243,11 +243,19 @@ To run the Scala frontend locally on Linux, follow these steps:
 
 1. Open a terminal and navigate to the project directory.
 2. Ensure Scala and sbt are installed on your system.
-3. Compile the Scala code using sbt:
+3. Add the sbt repository to your sources list:
+   ```sh
+   echo "deb https://repo.scala-sbt.org/scalasbt/debian all main" | sudo tee /etc/apt/sources.list.d/sbt.list
+   echo "deb https://repo.scala-sbt.org/scalasbt/debian /" | sudo tee /etc/apt/sources.list.d/sbt_old.list
+   curl -sL "https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x2EE0EA64E40A89B84B2DF73499E82A75642AC823" | sudo apt-key add
+   sudo apt-get update
+   sudo apt-get install sbt
+   ```
+4. Compile the Scala code using sbt:
    ```sh
    sbt compile
    ```
-4. Run the Scala frontend:
+5. Run the Scala frontend:
    ```sh
    sbt run
    ```
@@ -258,11 +266,19 @@ To run the Scala frontend locally on Windows, follow these steps:
 
 1. Open a command prompt and navigate to the project directory.
 2. Ensure Scala and sbt are installed on your system.
-3. Compile the Scala code using sbt:
+3. Add the sbt repository to your sources list:
+   ```sh
+   echo "deb https://repo.scala-sbt.org/scalasbt/debian all main" | sudo tee /etc/apt/sources.list.d/sbt.list
+   echo "deb https://repo.scala-sbt.org/scalasbt/debian /" | sudo tee /etc/apt/sources.list.d/sbt_old.list
+   curl -sL "https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x2EE0EA64E40A89B84B2DF73499E82A75642AC823" | sudo apt-key add
+   sudo apt-get update
+   sudo apt-get install sbt
+   ```
+4. Compile the Scala code using sbt:
    ```sh
    sbt compile
    ```
-4. Run the Scala frontend:
+5. Run the Scala frontend:
    ```sh
    sbt run
    ```
@@ -346,6 +362,9 @@ jobs:
 
       - name: Set up Scala
         run: |
+          echo "deb https://repo.scala-sbt.org/scalasbt/debian all main" | sudo tee /etc/apt/sources.list.d/sbt.list
+          echo "deb https://repo.scala-sbt.org/scalasbt/debian /" | sudo tee /etc/apt/sources.list.d/sbt_old.list
+          curl -sL "https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x2EE0EA64E40A89B84B2DF73499E82A75642AC823" | sudo apt-key add
           sudo apt-get update
           sudo apt-get install sbt
 
