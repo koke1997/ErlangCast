@@ -297,3 +297,67 @@ dash_streaming:start("path/to/video.mp4", "path/to/output").
 % Retrieve the DASH manifest
 {ok, Manifest} = dash_streaming:get_manifest("path/to/output").
 ```
+
+## Deploying the App to GitHub Pages
+
+To deploy the app to GitHub Pages, follow these steps:
+
+1. Ensure that the GitHub repository is set up with GitHub Pages enabled.
+2. Add the GitHub Actions workflow file (`.github/workflows/deploy.yml`) to automate the deployment process.
+3. Push the changes to the `main` branch.
+
+The GitHub Actions workflow will automatically build and deploy the app to GitHub Pages.
+
+### Example Workflow File
+The following is an example of a GitHub Actions workflow file (`.github/workflows/deploy.yml`) that automates the deployment to GitHub Pages:
+```yaml
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Erlang/OTP
+        uses: erlef/setup-beam@v1
+        with:
+          otp-version: 24.x
+          rebar3-version: 3.16.1
+
+      - name: Install dependencies
+        run: rebar3 get-deps
+
+      - name: Build project
+        run: rebar3 compile
+
+      - name: Set up Java
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'adopt'
+          java-version: '11'
+
+      - name: Set up Scala
+        run: |
+          sudo apt-get update
+          sudo apt-get install sbt
+
+      - name: Compile Scala code
+        run: sbt compile
+
+      - name: Build frontend
+        run: sbt fullOptJS
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./docs
+```

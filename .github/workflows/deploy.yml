@@ -1,0 +1,49 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Erlang/OTP
+        uses: erlef/setup-beam@v1
+        with:
+          otp-version: 24.x
+          rebar3-version: 3.16.1
+
+      - name: Install dependencies
+        run: rebar3 get-deps
+
+      - name: Build project
+        run: rebar3 compile
+
+      - name: Set up Java
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'adopt'
+          java-version: '11'
+
+      - name: Set up Scala
+        run: |
+          sudo apt-get update
+          sudo apt-get install sbt
+
+      - name: Compile Scala code
+        run: sbt compile
+
+      - name: Build frontend
+        run: sbt fullOptJS
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./docs
