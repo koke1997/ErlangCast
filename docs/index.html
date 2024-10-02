@@ -31,10 +31,37 @@
         <option value="hls">HLS</option>
         <option value="dash">DASH</option>
     </select>
+    <select id="user1Camera">
+        <option value="">Select Camera for User 1</option>
+    </select>
+    <select id="user2Camera">
+        <option value="">Select Camera for User 2</option>
+    </select>
     <video id="videoElement" autoplay controls></video>
     <script>
         const videoElement = document.getElementById('videoElement');
         const streamingOptions = document.getElementById('streamingOptions');
+        const user1Camera = document.getElementById('user1Camera');
+        const user2Camera = document.getElementById('user2Camera');
+
+        function getCameras() {
+            return navigator.mediaDevices.enumerateDevices()
+                .then(devices => devices.filter(device => device.kind === 'videoinput'));
+        }
+
+        function populateCameraOptions(selectElement, cameras) {
+            cameras.forEach(camera => {
+                const option = document.createElement('option');
+                option.value = camera.deviceId;
+                option.text = camera.label || `Camera ${selectElement.length + 1}`;
+                selectElement.appendChild(option);
+            });
+        }
+
+        getCameras().then(cameras => {
+            populateCameraOptions(user1Camera, cameras);
+            populateCameraOptions(user2Camera, cameras);
+        });
 
         streamingOptions.addEventListener('change', function() {
             const selectedOption = streamingOptions.value;
@@ -57,6 +84,34 @@
             } else if (selectedOption === 'dash') {
                 videoElement.src = 'path/to/dash/manifest.mpd';
                 videoElement.play();
+            }
+        });
+
+        user1Camera.addEventListener('change', function() {
+            const selectedCameraId = user1Camera.value;
+            if (selectedCameraId) {
+                navigator.mediaDevices.getUserMedia({ video: { deviceId: { exact: selectedCameraId } } })
+                    .then(function(stream) {
+                        videoElement.srcObject = stream;
+                        videoElement.play();
+                    })
+                    .catch(function(error) {
+                        console.error("Error accessing camera for User 1: ", error);
+                    });
+            }
+        });
+
+        user2Camera.addEventListener('change', function() {
+            const selectedCameraId = user2Camera.value;
+            if (selectedCameraId) {
+                navigator.mediaDevices.getUserMedia({ video: { deviceId: { exact: selectedCameraId } } })
+                    .then(function(stream) {
+                        videoElement.srcObject = stream;
+                        videoElement.play();
+                    })
+                    .catch(function(error) {
+                        console.error("Error accessing camera for User 2: ", error);
+                    });
             }
         });
 
