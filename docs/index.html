@@ -30,6 +30,7 @@
         <option value="webcam">Webcam</option>
         <option value="hls">HLS</option>
         <option value="dash">DASH</option>
+        <option value="rtmp">RTMP</option>
     </select>
     <select id="user1Camera">
         <option value="">Select Camera for User 1</option>
@@ -83,6 +84,9 @@
                 videoElement.play();
             } else if (selectedOption === 'dash') {
                 videoElement.src = 'path/to/dash/manifest.mpd';
+                videoElement.play();
+            } else if (selectedOption === 'rtmp') {
+                videoElement.src = 'rtmp://localhost/live/stream';
                 videoElement.play();
             }
         });

@@ -13,5 +13,8 @@ sudo apt-get install -y ffmpeg
 sudo apt-get install -y libav-tools
 sudo apt-get install -y libavcodec-extra
 
+# Install nginx-rtmp-module
+sudo apt-get install -y nginx nginx-rtmp-module
+
 # Print success message
 echo "All dependencies have been successfully installed."
