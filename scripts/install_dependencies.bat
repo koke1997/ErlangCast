@@ -14,5 +14,9 @@ REM Install HLS and DASH dependencies
 choco install libav-tools
 choco install libavcodec-extra
 
+REM Install nginx-rtmp-module
+choco install nginx
+choco install nginx-rtmp-module
+
 REM Print success message
 echo All dependencies have been successfully installed.

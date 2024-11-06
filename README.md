@@ -380,3 +380,48 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./docs
 ```
+
+## RTMP Streaming Option
+The RTMP streaming option allows for real-time messaging protocol streaming, providing a stable video session for multiple users.
+
+### How to Use RTMP Streaming
+1. Ensure the `nginx-rtmp-module` and `ffmpeg` with RTMP support are installed and configured in your project.
+2. Use the `rtmp_streaming:start/2` function to start RTMP streaming with the video file path and output directory as arguments.
+3. Retrieve the RTMP stream URL using the `rtmp_streaming:get_stream_url/1` function with the output directory as an argument.
+
+### Example
+```erlang
+% Start RTMP streaming
+rtmp_streaming:start("path/to/video.mp4", "path/to/output").
+
+% Retrieve the RTMP stream URL
+{ok, StreamURL} = rtmp_streaming:get_stream_url("path/to/output").
+```
+
+## Troubleshooting Common Issues
+This section provides solutions to common issues that users might encounter during setup and running the project.
+
+### Issue: Dependencies not installed correctly
+**Solution**: Ensure that the installation scripts (`scripts/install_dependencies.sh` and `scripts/install_dependencies.bat`) are up-to-date and cover all necessary dependencies for the project, including those required for RTMP streaming.
+
+### Issue: Video streaming not working
+**Solution**: Check the configuration files and ensure that the necessary libraries and tools for HLS, DASH, and RTMP streaming are installed and configured correctly. Verify that the video file paths and output directories are correct.
+
+### Issue: Project not running locally
+**Solution**: Follow the detailed instructions in the `README.md` for setting up and running the project locally on different platforms. Ensure that all dependencies are installed, and the project is compiled correctly.
+
+## Running the Project with Docker
+
+To build and run the project using Docker, follow these steps:
+
+1. Build the Docker image:
+   ```sh
+   docker build -t erlangcast .
+   ```
+
+2. Run the Docker container:
+   ```sh
+   docker run -p 8080:8080 -p 9100-9155:9100-9155 -p 9200-9255:9200-9255 erlangcast
+   ```
+
+This will start the ErlangCast project in a Docker container, making it easy to run locally.
