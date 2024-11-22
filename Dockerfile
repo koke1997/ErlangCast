@@ -25,6 +25,26 @@ RUN echo "deb https://repo.scala-sbt.org/scalasbt/debian all main" | tee /etc/ap
 # Compile the Scala code
 RUN sbt compile
 
+# Copy and run the peer discovery microservice
+COPY microservices/peer_discovery_service.erl /app/microservices/
+RUN erlc /app/microservices/peer_discovery_service.erl
+CMD ["erl", "-noshell", "-s", "peer_discovery_service", "start", "-s", "init", "stop"]
+
+# Copy and run the video chunking microservice
+COPY microservices/video_chunking_service.erl /app/microservices/
+RUN erlc /app/microservices/video_chunking_service.erl
+CMD ["erl", "-noshell", "-s", "video_chunking_service", "chunk_video", "-s", "init", "stop"]
+
+# Copy and run the reliable transmission microservice
+COPY microservices/reliable_transmission_service.erl /app/microservices/
+RUN erlc /app/microservices/reliable_transmission_service.erl
+CMD ["erl", "-noshell", "-s", "reliable_transmission_service", "send_data", "-s", "init", "stop"]
+
+# Copy and run the fault tolerance microservice
+COPY microservices/fault_tolerance_service.erl /app/microservices/
+RUN erlc /app/microservices/fault_tolerance_service.erl
+CMD ["erl", "-noshell", "-s", "fault_tolerance_service", "start", "-s", "init", "stop"]
+
 # Expose the necessary ports
 EXPOSE 8080 9100-9155 9200-9255
 
