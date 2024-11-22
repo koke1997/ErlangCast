@@ -425,3 +425,73 @@ To build and run the project using Docker, follow these steps:
    ```
 
 This will start the ErlangCast project in a Docker container, making it easy to run locally.
+
+## Microservices Architecture
+
+The ErlangCast project now includes a microservices architecture for easier integration and stability. The microservices are designed to handle specific functionalities and can be run independently.
+
+### Microservices Overview
+
+1. **Peer Discovery Service**: Handles peer discovery in the network.
+2. **Video Chunking Service**: Manages video chunking for efficient streaming.
+3. **Reliable Transmission Service**: Ensures reliable data transmission between peers.
+4. **Fault Tolerance Service**: Provides fault tolerance and error recovery mechanisms.
+
+### Setting Up and Running Microservices
+
+To set up and run the microservices, follow these steps:
+
+1. Ensure Docker is installed on your system.
+2. Navigate to the project directory.
+3. Build the Docker images for each microservice:
+   ```sh
+   docker build -t peer-discovery-service -f Dockerfile .
+   docker build -t video-chunking-service -f Dockerfile .
+   docker build -t reliable-transmission-service -f Dockerfile .
+   docker build -t fault-tolerance-service -f Dockerfile .
+   ```
+4. Run the Docker containers for each microservice:
+   ```sh
+   docker run -d --name peer-discovery-service peer-discovery-service
+   docker run -d --name video-chunking-service video-chunking-service
+   docker run -d --name reliable-transmission-service reliable-transmission-service
+   docker run -d --name fault-tolerance-service fault-tolerance-service
+   ```
+
+### Using Microservices
+
+#### Peer Discovery Service
+
+The Peer Discovery Service handles peer discovery in the network.
+
+**Functions**:
+- `start/0`: Starts the peer discovery process.
+- `stop/0`: Stops the peer discovery process.
+- `handle_message/1`: Handles incoming peer discovery messages.
+- `broadcast_message/1`: Broadcasts peer discovery messages.
+
+#### Video Chunking Service
+
+The Video Chunking Service manages video chunking for efficient streaming.
+
+**Functions**:
+- `chunk_video/2`: Chunks a video file into smaller chunks.
+- `get_chunk/2`: Retrieves a specific chunk of a video file.
+
+#### Reliable Transmission Service
+
+The Reliable Transmission Service ensures reliable data transmission between peers.
+
+**Functions**:
+- `send_data/2`: Sends data to a peer with retry mechanism.
+- `receive_data/1`: Receives data and processes it using the provided data handler.
+
+#### Fault Tolerance Service
+
+The Fault Tolerance Service provides fault tolerance and error recovery mechanisms.
+
+**Functions**:
+- `start/0`: Starts the fault tolerance service.
+- `stop/0`: Stops the fault tolerance service.
+- `handle_error/1`: Handles errors and logs them.
+- `recover/1`: Recovers from errors based on the error type.

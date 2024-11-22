@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  build:
+  build-peer-discovery:
     runs-on: ubuntu-latest
 
     steps:
@@ -22,8 +22,92 @@ jobs:
       - name: Install dependencies
         run: rebar3 get-deps
 
-      - name: Build project
-        run: rebar3 compile
+      - name: Compile peer discovery service
+        run: erlc microservices/peer_discovery_service.erl
+
+      - name: Deploy peer discovery service
+        run: |
+          docker build -t peer-discovery-service -f Dockerfile .
+          docker run -d --name peer-discovery-service peer-discovery-service
+
+  build-video-chunking:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Erlang/OTP
+        uses: erlef/setup-beam@v1
+        with:
+          otp-version: 24.x
+          rebar3-version: 3.16.1
+
+      - name: Install dependencies
+        run: rebar3 get-deps
+
+      - name: Compile video chunking service
+        run: erlc microservices/video_chunking_service.erl
+
+      - name: Deploy video chunking service
+        run: |
+          docker build -t video-chunking-service -f Dockerfile .
+          docker run -d --name video-chunking-service video-chunking-service
+
+  build-reliable-transmission:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Erlang/OTP
+        uses: erlef/setup-beam@v1
+        with:
+          otp-version: 24.x
+          rebar3-version: 3.16.1
+
+      - name: Install dependencies
+        run: rebar3 get-deps
+
+      - name: Compile reliable transmission service
+        run: erlc microservices/reliable_transmission_service.erl
+
+      - name: Deploy reliable transmission service
+        run: |
+          docker build -t reliable-transmission-service -f Dockerfile .
+          docker run -d --name reliable-transmission-service reliable-transmission-service
+
+  build-fault-tolerance:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Erlang/OTP
+        uses: erlef/setup-beam@v1
+        with:
+          otp-version: 24.x
+          rebar3-version: 3.16.1
+
+      - name: Install dependencies
+        run: rebar3 get-deps
+
+      - name: Compile fault tolerance service
+        run: erlc microservices/fault_tolerance_service.erl
+
+      - name: Deploy fault tolerance service
+        run: |
+          docker build -t fault-tolerance-service -f Dockerfile .
+          docker run -d --name fault-tolerance-service fault-tolerance-service
+
+  build-scala-frontend:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
 
       - name: Set up Java
         uses: actions/setup-java@v2
