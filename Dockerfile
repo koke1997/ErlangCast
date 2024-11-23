@@ -9,9 +9,9 @@ WORKDIR /app
 # Copy the current directory contents into the container at /app
 COPY . /app
 
-# Install dependencies
+#Install dependencies
 RUN apt-get update && \
-    apt-get install -y ffmpeg libav-tools libavcodec-extra && \
+    apt-get install -y ffmpeg libavcodec-extra && \
     rebar3 get-deps
 
 # Compile the Erlang project
