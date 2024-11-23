@@ -781,3 +781,20 @@ if __name__ == "__main__":
 
     run_app(args.port1, args.port2, args.camera1, args.camera2)
 ```
+
+## Running the Project Locally
+
+To run the project locally, follow these steps:
+
+1. Open a terminal or command prompt and navigate to the project directory.
+2. Run the installation script to install all dependencies:
+   ```sh
+   ./scripts/install_dependencies.sh
+   ```
+3. Run the project using the Python script:
+   ```sh
+   python scripts/run_local.py
+   ```
+
+### Note
+The `scripts/run_local.sh` and `scripts/run_local.bat` scripts are deprecated. Please use the `scripts/run_local.py` script for local testing and running the project.

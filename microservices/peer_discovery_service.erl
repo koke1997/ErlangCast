@@ -1,8 +1,6 @@
 -module(peer_discovery_service).
 
--behaviour(gen_server).
-
--export([start/0, stop/0, handle_message/1, broadcast_message/1]).
+-export([start/0, stop/0]).
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
 
 -record(state, {}).
@@ -15,14 +13,6 @@ start() ->
 stop() ->
     gen_server:stop(?MODULE).
 
-% Handle incoming peer discovery messages
-handle_message(Msg) ->
-    gen_server:cast(?MODULE, {handle_message, Msg}).
-
-% Broadcast peer discovery messages
-broadcast_message(Msg) ->
-    gen_server:cast(?MODULE, {broadcast_message, Msg}).
-
 % Initialize the gen_server
 init([]) ->
     {ok, #state{}}.
@@ -32,12 +22,6 @@ handle_call(_Request, _From, State) ->
     {reply, ok, State}.
 
 % Handle asynchronous messages
-handle_cast({handle_message, Msg}, State) ->
-    io:format("Received peer discovery message: ~p~n", [Msg]),
-    {noreply, State};
-handle_cast({broadcast_message, Msg}, State) ->
-    io:format("Broadcasting peer discovery message: ~p~n", [Msg]),
-    {noreply, State};
 handle_cast(_Msg, State) ->
     {noreply, State}.
 

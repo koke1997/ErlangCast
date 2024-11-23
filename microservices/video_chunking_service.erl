@@ -5,7 +5,7 @@
 % Chunks a video file into smaller chunks of the specified size
 chunk_video(VideoPath, ChunkSize) ->
     % Read the video file
-    case file:read_file(VideoPath) of
+    case read_video_file(VideoPath) of
         {ok, VideoData} ->
             % Chunk the video data
             chunk_video_data(VideoData, ChunkSize, []);
@@ -18,7 +18,7 @@ chunk_video(VideoPath, ChunkSize) ->
 % Retrieves a specific chunk of a video file
 get_chunk(VideoPath, ChunkIndex) ->
     % Read the video file
-    case file:read_file(VideoPath) of
+    case read_video_file(VideoPath) of
         {ok, VideoData} ->
             % Chunk the video data
             Chunks = chunk_video_data(VideoData, 1048576, []),
@@ -29,6 +29,10 @@ get_chunk(VideoPath, ChunkIndex) ->
             error_logger:error_msg("Failed to read video file ~p: ~p~n", [VideoPath, Reason]),
             {error, Reason}
     end.
+
+% Helper function to read the video file
+read_video_file(VideoPath) ->
+    file:read_file(VideoPath).
 
 % Helper function to chunk the video data
 chunk_video_data(VideoData, ChunkSize, Acc) when byte_size(VideoData) =< ChunkSize ->
