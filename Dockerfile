@@ -46,7 +46,7 @@ RUN erlc /app/microservices/fault_tolerance_service.erl
 CMD ["erl", "-noshell", "-s", "fault_tolerance_service", "start", "-s", "init", "stop"]
 
 # Expose the necessary ports
-EXPOSE 8080 9100-9155 9200-9255
+EXPOSE 8080 8081 9100-9155 9200-9255
 
-# Define the command to run the project
-CMD ["rebar3", "shell"]
+# Define the command to run the project on both ports
+CMD ["sh", "-c", "rebar3 shell & rebar3 shell --setcookie port2 --name port2@127.0.0.1"]

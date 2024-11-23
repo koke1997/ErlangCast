@@ -495,3 +495,289 @@ The Fault Tolerance Service provides fault tolerance and error recovery mechanis
 - `stop/0`: Stops the fault tolerance service.
 - `handle_error/1`: Handles errors and logs them.
 - `recover/1`: Recovers from errors based on the error type.
+
+## Running the App on Multiple Ports
+
+To run the app on multiple ports, follow these steps:
+
+1. Update the `config/sys.config` file to include configurations for two different ports.
+2. Modify the `Dockerfile` to expose the new ports and run the app on both ports.
+3. Update the `docs/index.html` file to allow selecting a camera input for each port.
+4. Use the provided Python script to run the app on multiple ports using parameters.
+
+### Example Configuration
+
+#### `config/sys.config`
+```erlang
+[
+  {kernel, [
+    {inet_dist_listen_min, 9100},
+    {inet_dist_listen_max, 9155},
+    {error_logger, {file, "log/error.log"}}
+  ]},
+  {sasl, [
+    {sasl_error_logger, {file, "log/sasl-error.log"}},
+    {errlog_type, error}
+  ]},
+  {peer_discovery, [
+    {port_range, {9200, 9255}},
+    {broadcast_interval, 5000},
+    {max_peers, 50}
+  ]},
+  {fault_tolerance, [
+    {retry_limit, 5},
+    {ack_timeout, 1000},
+    {max_retries, 3}
+  ]},
+  {http, [
+    {port1, 8080},
+    {port2, 8081}
+  ]}
+].
+```
+
+#### `Dockerfile`
+```Dockerfile
+# Use an official Erlang runtime as a parent image
+FROM erlang:24
+
+# Set the working directory
+WORKDIR /app
+
+# Copy the current directory contents into the container at /app
+COPY . /app
+
+# Install dependencies
+RUN apt-get update && \
+    apt-get install -y ffmpeg libav-tools libavcodec-extra && \
+    rebar3 get-deps
+
+# Compile the project
+RUN rebar3 compile
+
+# Install Scala and sbt
+RUN echo "deb https://repo.scala-sbt.org/scalasbt/debian all main" | tee /etc/apt/sources.list.d/sbt.list && \
+    echo "deb https://repo.scala-sbt.org/scalasbt/debian /" | tee /etc/apt/sources.list.d/sbt_old.list && \
+    curl -sL "https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x2EE0EA64E40A89B84B2DF73499E82A75642AC823" | apt-key add && \
+    apt-get update && \
+    apt-get install -y sbt
+
+# Compile the Scala code
+RUN sbt compile
+
+# Copy and run the peer discovery microservice
+COPY microservices/peer_discovery_service.erl /app/microservices/
+RUN erlc /app/microservices/peer_discovery_service.erl
+CMD ["erl", "-noshell", "-s", "peer_discovery_service", "start", "-s", "init", "stop"]
+
+# Copy and run the video chunking microservice
+COPY microservices/video_chunking_service.erl /app/microservices/
+RUN erlc /app/microservices/video_chunking_service.erl
+CMD ["erl", "-noshell", "-s", "video_chunking_service", "chunk_video", "-s", "init", "stop"]
+
+# Copy and run the reliable transmission microservice
+COPY microservices/reliable_transmission_service.erl /app/microservices/
+RUN erlc /app/microservices/reliable_transmission_service.erl
+CMD ["erl", "-noshell", "-s", "reliable_transmission_service", "send_data", "-s", "init", "stop"]
+
+# Copy and run the fault tolerance microservice
+COPY microservices/fault_tolerance_service.erl /app/microservices/
+RUN erlc /app/microservices/fault_tolerance_service.erl
+CMD ["erl", "-noshell", "-s", "fault_tolerance_service", "start", "-s", "init", "stop"]
+
+# Expose the necessary ports
+EXPOSE 8080 8081 9100-9155 9200-9255
+
+# Define the command to run the project on both ports
+CMD ["sh", "-c", "rebar3 shell & rebar3 shell --setcookie port2 --name port2@127.0.0.1"]
+```
+
+#### `docs/index.html`
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Webcam Test - Scala Frontend</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+        }
+        video {
+            width: 80%;
+            max-width: 600px;
+            margin: 20px auto;
+            display: block;
+        }
+        select {
+            margin: 20px;
+            padding: 10px;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Webcam Test</h1>
+    <select id="streamingOptions">
+        <option value="webcam">Webcam</option>
+        <option value="hls">HLS</option>
+        <option value="dash">DASH</option>
+        <option value="rtmp">RTMP</option>
+    </select>
+    <select id="user1Camera">
+        <option value="">Select Camera for User 1</option>
+    </select>
+    <select id="user2Camera">
+        <option value="">Select Camera for User 2</option>
+    </select>
+    <select id="port1Camera">
+        <option value="">Select Camera for Port 1</option>
+    </select>
+    <select id="port2Camera">
+        <option value="">Select Camera for Port 2</option>
+    </select>
+    <video id="videoElement" autoplay controls></video>
+    <script>
+        const videoElement = document.getElementById('videoElement');
+        const streamingOptions = document.getElementById('streamingOptions');
+        const user1Camera = document.getElementById('user1Camera');
+        const user2Camera = document.getElementById('user2Camera');
+        const port1Camera = document.getElementById('port1Camera');
+        const port2Camera = document.getElementById('port2Camera');
+
+        function getCameras() {
+            return navigator.mediaDevices.enumerateDevices()
+                .then(devices => devices.filter(device => device.kind === 'videoinput'));
+        }
+
+        function populateCameraOptions(selectElement, cameras) {
+            cameras.forEach(camera => {
+                const option = document.createElement('option');
+                option.value = camera.deviceId;
+                option.text = camera.label || `Camera ${selectElement.length + 1}`;
+                selectElement.appendChild(option);
+            });
+        }
+
+        getCameras().then(cameras => {
+            populateCameraOptions(user1Camera, cameras);
+            populateCameraOptions(user2Camera, cameras);
+            populateCameraOptions(port1Camera, cameras);
+            populateCameraOptions(port2Camera, cameras);
+        });
+
+        streamingOptions.addEventListener('change', function() {
+            const selectedOption = streamingOptions.value;
+            if (selectedOption === 'webcam') {
+                if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                    navigator.mediaDevices.getUserMedia({ video: true })
+                        .then(function(stream) {
+                            videoElement.srcObject = stream;
+                            videoElement.play();
+                        })
+                        .catch(function(error) {
+                            console.error("Error accessing webcam: ", error);
+                        });
+                } else {
+                    console.error("getUserMedia not supported by this browser.");
+                }
+            } else if (selectedOption === 'hls') {
+                videoElement.src = 'path/to/hls/playlist.m3u8';
+                videoElement.play();
+            } else if (selectedOption === 'dash') {
+                videoElement.src = 'path/to/dash/manifest.mpd';
+                videoElement.play();
+            } else if (selectedOption === 'rtmp') {
+                videoElement.src = 'rtmp://localhost/live/stream';
+                videoElement.play();
+            }
+        });
+
+        user1Camera.addEventListener('change', function() {
+            const selectedCameraId = user1Camera.value;
+            if (selectedCameraId) {
+                navigator.mediaDevices.getUserMedia({ video: { deviceId: { exact: selectedCameraId } } })
+                    .then(function(stream) {
+                        videoElement.srcObject = stream;
+                        videoElement.play();
+                    })
+                    .catch(function(error) {
+                        console.error("Error accessing camera for User 1: ", error);
+                    });
+            }
+        });
+
+        user2Camera.addEventListener('change', function() {
+            const selectedCameraId = user2Camera.value;
+            if (selectedCameraId) {
+                navigator.mediaDevices.getUserMedia({ video: { deviceId: { exact: selectedCameraId } } })
+                    .then(function(stream) {
+                        videoElement.srcObject = stream;
+                        videoElement.play();
+                    })
+                    .catch(function(error) {
+                        console.error("Error accessing camera for User 2: ", error);
+                    });
+            }
+        });
+
+        port1Camera.addEventListener('change', function() {
+            const selectedCameraId = port1Camera.value;
+            if (selectedCameraId) {
+                navigator.mediaDevices.getUserMedia({ video: { deviceId: { exact: selectedCameraId } } })
+                    .then(function(stream) {
+                        videoElement.srcObject = stream;
+                        videoElement.play();
+                    })
+                    .catch(function(error) {
+                        console.error("Error accessing camera for Port 1: ", error);
+                    });
+            }
+        });
+
+        port2Camera.addEventListener('change', function() {
+            const selectedCameraId = port2Camera.value;
+            if (selectedCameraId) {
+                navigator.mediaDevices.getUserMedia({ video: { deviceId: { exact: selectedCameraId } } })
+                    .then(function(stream) {
+                        videoElement.srcObject = stream;
+                        videoElement.play();
+                    })
+                    .catch(function(error) {
+                        console.error("Error accessing camera for Port 2: ", error);
+                    });
+            }
+        });
+
+        // Initialize with webcam option
+        streamingOptions.value = 'webcam';
+        streamingOptions.dispatchEvent(new Event('change'));
+    </script>
+    <!-- Scala is used for the frontend -->
+</body>
+</html>
+```
+
+#### `scripts/run_local.py`
+```python
+import subprocess
+import argparse
+
+def run_app(port1, port2, camera1, camera2):
+    cmd = f"rebar3 shell & rebar3 shell --setcookie port2 --name port2@127.0.0.1"
+    subprocess.run(cmd, shell=True)
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Run the app on multiple ports with camera inputs")
+    parser.add_argument("--port1", type=int, default=8080, help="Port for the first instance")
+    parser.add_argument("--port2", type=int, default=8081, help="Port for the second instance")
+    parser.add_argument("--camera1", type=str, help="Camera input for the first instance")
+    parser.add_argument("--camera2", type=str, help="Camera input for the second instance")
+    args = parser.parse_args()
+
+    run_app(args.port1, args.port2, args.camera1, args.camera2)
+```

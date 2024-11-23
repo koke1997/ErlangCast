@@ -38,12 +38,20 @@
     <select id="user2Camera">
         <option value="">Select Camera for User 2</option>
     </select>
+    <select id="port1Camera">
+        <option value="">Select Camera for Port 1</option>
+    </select>
+    <select id="port2Camera">
+        <option value="">Select Camera for Port 2</option>
+    </select>
     <video id="videoElement" autoplay controls></video>
     <script>
         const videoElement = document.getElementById('videoElement');
         const streamingOptions = document.getElementById('streamingOptions');
         const user1Camera = document.getElementById('user1Camera');
         const user2Camera = document.getElementById('user2Camera');
+        const port1Camera = document.getElementById('port1Camera');
+        const port2Camera = document.getElementById('port2Camera');
 
         function getCameras() {
             return navigator.mediaDevices.enumerateDevices()
@@ -62,6 +70,8 @@
         getCameras().then(cameras => {
             populateCameraOptions(user1Camera, cameras);
             populateCameraOptions(user2Camera, cameras);
+            populateCameraOptions(port1Camera, cameras);
+            populateCameraOptions(port2Camera, cameras);
         });
 
         streamingOptions.addEventListener('change', function() {
@@ -115,6 +125,34 @@
                     })
                     .catch(function(error) {
                         console.error("Error accessing camera for User 2: ", error);
+                    });
+            }
+        });
+
+        port1Camera.addEventListener('change', function() {
+            const selectedCameraId = port1Camera.value;
+            if (selectedCameraId) {
+                navigator.mediaDevices.getUserMedia({ video: { deviceId: { exact: selectedCameraId } } })
+                    .then(function(stream) {
+                        videoElement.srcObject = stream;
+                        videoElement.play();
+                    })
+                    .catch(function(error) {
+                        console.error("Error accessing camera for Port 1: ", error);
+                    });
+            }
+        });
+
+        port2Camera.addEventListener('change', function() {
+            const selectedCameraId = port2Camera.value;
+            if (selectedCameraId) {
+                navigator.mediaDevices.getUserMedia({ video: { deviceId: { exact: selectedCameraId } } })
+                    .then(function(stream) {
+                        videoElement.srcObject = stream;
+                        videoElement.play();
+                    })
+                    .catch(function(error) {
+                        console.error("Error accessing camera for Port 2: ", error);
                     });
             }
         });
