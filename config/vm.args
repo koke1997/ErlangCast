@@ -1,0 +1,8 @@
+-name ${NODE_NAME}
+-setcookie ${COOKIE}
+
++K true
++A 100
++P 500000
++Q 500000
++S 4:4

@@ -1,117 +1,81 @@
 -module(fault_tolerance_service).
+-behavior(gen_server).
 
 -export([start/0, stop/0, handle_error/1, recover/1]).
+-export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
+
+% Define state record
+-record(state, {
+    peers = [],          % List of connected peers
+    video_data = [],     % Current video data
+    chunk_size = 1024,   % Default chunk size
+    error_count = 0      % Count of errors encountered
+}).
 
 % Start the fault tolerance service
 start() ->
-    % Start the fault tolerance service
     case gen_server:start_link({local, ?MODULE}, ?MODULE, [], []) of
-        {ok, _Pid} ->
-            ok;
+        {ok, Pid} ->
+            {ok, Pid};
         {error, Reason} ->
             error_logger:error_msg("Failed to start fault tolerance service: ~p~n", [Reason]),
             {error, Reason}
     end.
 
-% Stop the fault tolerance service
+% Stop the service
 stop() ->
-    % Stop the fault tolerance service
-    case gen_server:stop(?MODULE) of
-        ok ->
-            ok;
-        {error, Reason} ->
-            error_logger:error_msg("Failed to stop fault tolerance service: ~p~n", [Reason]),
-            {error, Reason}
-    end.
+    gen_server:cast(?MODULE, stop).
 
-% Handle errors and log them
-handle_error(Error) ->
-    % Log the error
-    error_logger:error_msg("Error occurred: ~p~n", [Error]),
-    % Attempt to recover from the error
-    recover(Error).
+% Handle various types of errors
+handle_error({peer_failure, Peer, Data}) ->
+    gen_server:cast(?MODULE, {handle_peer_failure, Peer, Data});
+handle_error({chunk_error, VideoPath, ChunkSize}) ->
+    gen_server:cast(?MODULE, {handle_chunk_error, VideoPath, ChunkSize});
+handle_error({video_corrupted, VideoPath}) ->
+    gen_server:cast(?MODULE, {handle_video_corruption, VideoPath});
+handle_error({transmission_error, VideoData, ChunkSize}) ->
+    gen_server:cast(?MODULE, {handle_transmission_error, VideoData, ChunkSize});
+handle_error({chunk_missing, VideoPath, ChunkIndex}) ->
+    gen_server:cast(?MODULE, {handle_missing_chunk, VideoPath, ChunkIndex}).
 
-% Recover from errors
-recover(Error) ->
-    % Implement recovery mechanisms based on the error type
-    case Error of
-        {peer_discovery, Reason} ->
-            % Handle peer discovery errors
-            error_logger:error_msg("Recovering from peer discovery error: ~p~n", [Reason]),
-            % Restart peer discovery process
-            peer_discovery:start();
-        {reliable_transmission, Reason} ->
-            % Handle reliable transmission errors
-            error_logger:error_msg("Recovering from reliable transmission error: ~p~n", [Reason]),
-            % Retry sending data
-            reliable_transmission:send_data(Peer, Data);
-        {video_chunking, Reason} ->
-            % Handle video chunking errors
-            error_logger:error_msg("Recovering from video chunking error: ~p~n", [Reason]),
-            % Retry chunking video
-            video_chunking:chunk_video(VideoPath, ChunkSize);
-        {video_file_reading, Reason} ->
-            % Handle video file reading errors
-            error_logger:error_msg("Recovering from video file reading error: ~p~n", [Reason]),
-            % Retry reading video file
-            video_file_reading:read_video_file(VideoPath);
-        {video_data_chunking, Reason} ->
-            % Handle video data chunking errors
-            error_logger:error_msg("Recovering from video data chunking error: ~p~n", [Reason]),
-            % Retry chunking video data
-            video_data_chunking:chunk_video_data(VideoData, ChunkSize);
-        {video_chunk_retrieval, Reason} ->
-            % Handle video chunk retrieval errors
-            error_logger:error_msg("Recovering from video chunk retrieval error: ~p~n", [Reason]),
-            % Retry retrieving video chunk
-            video_chunk_retrieval:get_chunk(VideoPath, ChunkIndex);
-        {data_sending, Reason} ->
-            % Handle data sending errors
-            error_logger:error_msg("Recovering from data sending error: ~p~n", [Reason]),
-            % Retry sending data
-            data_sending:send_data(Peer, Data);
-        {data_receiving, Reason} ->
-            % Handle data receiving errors
-            error_logger:error_msg("Recovering from data receiving error: ~p~n", [Reason]),
-            % Retry receiving data
-            data_receiving:receive_data(DataHandler);
-        {incoming_message_handling, Reason} ->
-            % Handle incoming message handling errors
-            error_logger:error_msg("Recovering from incoming message handling error: ~p~n", [Reason]),
-            % Retry handling incoming message
-            incoming_message_handling:handle_incoming_message(Msg);
-        {broadcast_message_handling, Reason} ->
-            % Handle broadcast message handling errors
-            error_logger:error_msg("Recovering from broadcast message handling error: ~p~n", [Reason]),
-            % Retry handling broadcast message
-            broadcast_message_handling:handle_broadcast_message(Msg);
-        _ ->
-            % Handle other errors
-            error_logger:error_msg("Unknown error occurred: ~p~n", [Error])
-    end.
+% Recovery functions
+recover({peer_connection, Peer, Data}) ->
+    gen_server:call(?MODULE, {recover_peer_connection, Peer, Data});
+recover({data_handler, DataHandler}) ->
+    gen_server:call(?MODULE, {recover_data_handler, DataHandler});
+recover({error_handler, Msg}) ->
+    gen_server:call(?MODULE, {recover_error_handler, Msg});
+recover({recovery_handler, Msg}) ->
+    gen_server:call(?MODULE, {recover_recovery_handler, Msg}).
 
-% Initialize the gen_server
+% Callback functions
 init([]) ->
     {ok, #state{}}.
 
-% Handle synchronous calls
-handle_call(_Request, _From, State) ->
-    {reply, ok, State}.
+handle_call({recover_peer_connection, Peer, Data}, _From, State) ->
+    {reply, {ok, {Peer, Data}}, State};
+handle_call({recover_data_handler, DataHandler}, _From, State) ->
+    {reply, {ok, DataHandler}, State};
+handle_call({recover_error_handler, Msg}, _From, State) ->
+    {reply, {ok, Msg}, State};
+handle_call({recover_recovery_handler, Msg}, _From, State) ->
+    {reply, {ok, Msg}, State}.
 
-% Handle asynchronous messages
-handle_cast(_Msg, State) ->
+handle_cast(stop, State) ->
+    {stop, normal, State};
+handle_cast({handle_peer_failure, Peer, Data}, State) ->
+    error_logger:warning_msg("Handling peer failure for ~p with data ~p~n", [Peer, Data]),
+    {noreply, State#state{error_count = State#state.error_count + 1}};
+handle_cast({handle_chunk_error, VideoPath, ChunkSize}, State) ->
+    error_logger:warning_msg("Handling chunk error for ~p with size ~p~n", [VideoPath, ChunkSize]),
     {noreply, State}.
 
-% Handle other messages
-handle_info(_Info, State) ->
-    % Recovery mechanism for unexpected info
-    error_logger:error_msg("Unexpected info received: ~p~n", [_Info]),
+handle_info(Info, State) ->
+    error_logger:info_msg("Received unexpected message: ~p~n", [Info]),
     {noreply, State}.
 
-% Terminate the gen_server
 terminate(_Reason, _State) ->
     ok.
 
-% Handle code changes
 code_change(_OldVsn, State, _Extra) ->
     {ok, State}.
