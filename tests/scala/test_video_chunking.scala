@@ -21,4 +21,12 @@ class TestVideoChunking extends AnyFlatSpec with Matchers {
       case Failure(exception) => fail(s"Failed to retrieve chunk: ${exception.getMessage}")
     }
   }
+
+  it should "restart the video chunking service" in {
+    val result = VideoChunking.restart()
+    result match {
+      case Success(_) => succeed
+      case Failure(exception) => fail(s"Failed to restart video chunking service: ${exception.getMessage}")
+    }
+  }
 }

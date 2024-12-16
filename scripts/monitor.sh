@@ -10,6 +10,7 @@ log_message() {
 # Function to handle errors
 handle_error() {
     log_message "ERROR: $1"
+    restart_services
     exit 1
 }
 
@@ -29,6 +30,12 @@ monitor_memory() {
 monitor_logs() {
     log_message "Monitoring logs for errors..."
     tail -f log/error.log | grep --line-buffered "ERROR" || handle_error "Failed to monitor logs for errors"
+}
+
+# Function to restart all services
+restart_services() {
+    log_message "Restarting all services..."
+    # Add logic to restart all services
 }
 
 # Main monitoring function

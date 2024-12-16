@@ -8,8 +8,12 @@ object FaultTolerance {
   private var errorCount = 0
 
   def start(): Future[Unit] = Future {
-    isRunning = true
-    println("Fault tolerance service started.")
+    if (isRunning) {
+      restart()
+    } else {
+      isRunning = true
+      println("Fault tolerance service started.")
+    }
   }
 
   def stop(): Future[Unit] = Future {
@@ -25,5 +29,12 @@ object FaultTolerance {
   def recover(error: String): Future[Unit] = Future {
     println(s"Recovering from error: $error")
     errorCount -= 1
+  }
+
+  def restart(): Future[Unit] = {
+    for {
+      _ <- stop()
+      _ <- start()
+    } yield ()
   }
 }

@@ -16,4 +16,9 @@ class TestScalaConnector extends AnyFlatSpec with Matchers {
     val message = Await.result(ScalaConnector.receiveFromErlang(), 5.seconds)
     message should be ("Message from Erlang")
   }
+
+  "restart" should "restart the Scala connector" in {
+    val result = Await.result(ScalaConnector.restart(), 5.seconds)
+    result shouldBe ()
+  }
 }

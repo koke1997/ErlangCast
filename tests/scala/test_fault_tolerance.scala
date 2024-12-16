@@ -24,4 +24,9 @@ class TestFaultTolerance extends AnyFlatSpec with Matchers {
     val result = Await.result(FaultTolerance.recover("Test error"), 5.seconds)
     result shouldBe ()
   }
+
+  it should "restart the fault tolerance service" in {
+    val result = Await.result(FaultTolerance.restart(), 5.seconds)
+    result shouldBe ()
+  }
 }
