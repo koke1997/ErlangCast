@@ -826,3 +826,201 @@ To run the project locally, follow these steps:
 
 ### Note
 The `scripts/run_local.sh` and `scripts/run_local.bat` scripts are deprecated. Please use the `scripts/run_local.py` script for local testing and running the project.
+
+## Webcam Test Site
+
+The project is now ready for release as a site for testing webcam functionality. The webcam test site allows users to select different streaming protocols and camera inputs for testing purposes.
+
+### Features
+- Select different streaming protocols: Webcam, HLS, DASH, RTMP
+- Choose camera inputs for different users and ports
+- Display the selected camera input in a video element
+
+### How to Use the Webcam Test Site
+1. Open the `docs/index.html` file in a web browser.
+2. Select a streaming protocol from the dropdown menu.
+3. Choose a camera input for each user and port.
+4. The selected camera input will be displayed in the video element.
+
+### Example
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Webcam Test - ScalaCast</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+        }
+        video {
+            width: 80%;
+            max-width: 600px;
+            margin: 20px auto;
+            display: block;
+        }
+        select {
+            margin: 20px;
+            padding: 10px;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Webcam Test</h1>
+    <select id="streamingOptions">
+        <option value="webcam">Webcam</option>
+        <option value="hls">HLS</option>
+        <option value="dash">DASH</option>
+        <option value="rtmp">RTMP</option>
+    </select>
+    <select id="user1Camera">
+        <option value="">Select Camera for User 1</option>
+    </select>
+    <select id="user2Camera">
+        <option value="">Select Camera for User 2</option>
+    </select>
+    <select id="port1Camera">
+        <option value="">Select Camera for Port 1</option>
+    </select>
+    <select id="port2Camera">
+        <option value="">Select Camera for Port 2</option>
+    </select>
+    <div id="selectedCameraInput">
+        <h2>Selected Camera Input</h2>
+        <video id="selectedCameraVideo" autoplay controls></video>
+    </div>
+    <video id="videoElement" autoplay controls></video>
+    <script>
+        const videoElement = document.getElementById('videoElement');
+        const streamingOptions = document.getElementById('streamingOptions');
+        const user1Camera = document.getElementById('user1Camera');
+        const user2Camera = document.getElementById('user2Camera');
+        const port1Camera = document.getElementById('port1Camera');
+        const port2Camera = document.getElementById('port2Camera');
+        const selectedCameraVideo = document.getElementById('selectedCameraVideo');
+
+        function getCameras() {
+            return navigator.mediaDevices.enumerateDevices()
+                .then(devices => devices.filter(device => device.kind === 'videoinput'));
+        }
+
+        function populateCameraOptions(selectElement, cameras) {
+            cameras.forEach(camera => {
+                const option = document.createElement('option');
+                option.value = camera.deviceId;
+                option.text = camera.label || `Camera ${selectElement.length + 1}`;
+                selectElement.appendChild(option);
+            });
+        }
+
+        getCameras().then(cameras => {
+            populateCameraOptions(user1Camera, cameras);
+            populateCameraOptions(user2Camera, cameras);
+            populateCameraOptions(port1Camera, cameras);
+            populateCameraOptions(port2Camera, cameras);
+        });
+
+        streamingOptions.addEventListener('change', function() {
+            const selectedOption = streamingOptions.value;
+            if (selectedOption === 'webcam') {
+                if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                    navigator.mediaDevices.getUserMedia({ video: true })
+                        .then(function(stream) {
+                            videoElement.srcObject = stream;
+                            videoElement.play();
+                        })
+                        .catch(function(error) {
+                            console.error("Error accessing webcam: ", error);
+                        });
+                } else {
+                    console.error("getUserMedia not supported by this browser.");
+                }
+            } else if (selectedOption === 'hls') {
+                videoElement.src = 'path/to/hls/playlist.m3u8';
+                videoElement.play();
+            } else if (selectedOption === 'dash') {
+                videoElement.src = 'path/to/dash/manifest.mpd';
+                videoElement.play();
+            } else if (selectedOption === 'rtmp') {
+                videoElement.src = 'rtmp://localhost/live/stream';
+                videoElement.play();
+            }
+        });
+
+        user1Camera.addEventListener('change', function() {
+            const selectedCameraId = user1Camera.value;
+            if (selectedCameraId) {
+                navigator.mediaDevices.getUserMedia({ video: { deviceId: { exact: selectedCameraId } } })
+                    .then(function(stream) {
+                        videoElement.srcObject = stream;
+                        videoElement.play();
+                        selectedCameraVideo.srcObject = stream;
+                        selectedCameraVideo.play();
+                    })
+                    .catch(function(error) {
+                        console.error("Error accessing camera for User 1: ", error);
+                    });
+            }
+        });
+
+        user2Camera.addEventListener('change', function() {
+            const selectedCameraId = user2Camera.value;
+            if (selectedCameraId) {
+                navigator.mediaDevices.getUserMedia({ video: { deviceId: { exact: selectedCameraId } } })
+                    .then(function(stream) {
+                        videoElement.srcObject = stream;
+                        videoElement.play();
+                        selectedCameraVideo.srcObject = stream;
+                        selectedCameraVideo.play();
+                    })
+                    .catch(function(error) {
+                        console.error("Error accessing camera for User 2: ", error);
+                    });
+            }
+        });
+
+        port1Camera.addEventListener('change', function() {
+            const selectedCameraId = port1Camera.value;
+            if (selectedCameraId) {
+                navigator.mediaDevices.getUserMedia({ video: { deviceId: { exact: selectedCameraId } } })
+                    .then(function(stream) {
+                        videoElement.srcObject = stream;
+                        videoElement.play();
+                        selectedCameraVideo.srcObject = stream;
+                        selectedCameraVideo.play();
+                    })
+                    .catch(function(error) {
+                        console.error("Error accessing camera for Port 1: ", error);
+                    });
+            }
+        });
+
+        port2Camera.addEventListener('change', function() {
+            const selectedCameraId = port2Camera.value;
+            if (selectedCameraId) {
+                navigator.mediaDevices.getUserMedia({ video: { deviceId: { exact: selectedCameraId } } })
+                    .then(function(stream) {
+                        videoElement.srcObject = stream;
+                        videoElement.play();
+                        selectedCameraVideo.srcObject = stream;
+                        selectedCameraVideo.play();
+                    })
+                    .catch(function(error) {
+                        console.error("Error accessing camera for Port 2: ", error);
+                    });
+            }
+        });
+
+        // Initialize with webcam option
+        streamingOptions.value = 'webcam';
+        streamingOptions.dispatchEvent(new Event('change'));
+    </script>
+    <!-- Scala is used for the frontend -->
+</body>
+</html>
+```
