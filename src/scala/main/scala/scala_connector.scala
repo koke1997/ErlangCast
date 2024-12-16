@@ -11,11 +11,27 @@ object ScalaConnector {
   val erlangActor = system.actorOf(Props[ErlangActor], "erlangActor")
 
   def sendToErlang(message: String): Unit = {
-    erlangActor ! message
+    if (system.whenTerminated.isCompleted) {
+      restart()
+    } else {
+      erlangActor ! message
+    }
   }
 
   def receiveFromErlang(): Future[String] = {
     (erlangActor ? "receive").mapTo[String]
+  }
+
+  def restart(): Future[Unit] = {
+    for {
+      _ <- system.terminate()
+      _ <- system.whenTerminated
+      newSystem = ActorSystem("ScalaErlangSystem")
+      newErlangActor = newSystem.actorOf(Props[ErlangActor], "erlangActor")
+    } yield {
+      system = newSystem
+      erlangActor = newErlangActor
+    }
   }
 
   class ErlangActor extends Actor {

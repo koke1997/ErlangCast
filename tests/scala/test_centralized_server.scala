@@ -20,4 +20,9 @@ class TestCentralizedServer extends AnyFlatSpec with Matchers {
     val result = Await.result(CentralizedServer.handleClientRequest(clientSocket), 5.seconds)
     result shouldBe ()
   }
+
+  it should "restart the centralized server" in {
+    val result = Await.result(CentralizedServer.restartServer(8080), 5.seconds)
+    result shouldBe ()
+  }
 }

@@ -11,7 +11,7 @@ object ReliableTransmission {
   def sendData(peer: String, data: String): Future[Unit] = {
     def attemptSend(retryCount: Int): Future[Unit] = {
       if (retryCount >= retryLimit) {
-        Future.failed(new Exception("Retry limit reached"))
+        restart()
       } else {
         // Simulate sending data to peer
         println(s"Sending data to $peer: $data")
@@ -46,5 +46,20 @@ object ReliableTransmission {
 
   def handleTransmissionError(peer: String, reason: String): Unit = {
     println(s"Transmission error with peer $peer: $reason")
+  }
+
+  def restart(): Future[Unit] = {
+    for {
+      _ <- stop()
+      _ <- start()
+    } yield ()
+  }
+
+  def stop(): Future[Unit] = Future {
+    println("Reliable transmission service stopped.")
+  }
+
+  def start(): Future[Unit] = Future {
+    println("Reliable transmission service started.")
   }
 }

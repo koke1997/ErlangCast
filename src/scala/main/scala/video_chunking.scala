@@ -9,6 +9,11 @@ object VideoChunking {
       val videoFile = new File(videoPath)
       val videoData = Files.readAllBytes(videoFile.toPath)
       chunkVideoData(videoData, chunkSize, List.empty)
+    } match {
+      case Success(chunks) => Success(chunks)
+      case Failure(exception) =>
+        restart()
+        Failure(exception)
     }
   }
 
@@ -28,6 +33,13 @@ object VideoChunking {
     } else {
       val (chunk, rest) = videoData.splitAt(chunkSize)
       chunkVideoData(rest, chunkSize, chunk :: acc)
+    }
+  }
+
+  def restart(): Try[Unit] = {
+    Try {
+      println("Restarting video chunking service...")
+      // Add logic to restart the video chunking service
     }
   }
 }

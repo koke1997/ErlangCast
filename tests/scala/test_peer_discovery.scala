@@ -24,4 +24,9 @@ class TestPeerDiscovery extends AnyFlatSpec with Matchers {
     val result = Await.result(PeerDiscovery.broadcastMessage("Test message"), 5.seconds)
     result shouldBe ()
   }
+
+  it should "restart the peer discovery service" in {
+    val result = Await.result(PeerDiscovery.restart(), 5.seconds)
+    result shouldBe ()
+  }
 }

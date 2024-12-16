@@ -9,12 +9,16 @@ object PeerDiscovery {
   private var peers: Set[String] = Set.empty
 
   def start(): Future[Unit] = Future {
-    isRunning = true
-    println("Peer discovery started.")
-    // Simulate peer discovery process
-    while (isRunning) {
-      Thread.sleep(5000)
-      broadcastMessage("Hello, peers!")
+    if (isRunning) {
+      restart()
+    } else {
+      isRunning = true
+      println("Peer discovery started.")
+      // Simulate peer discovery process
+      while (isRunning) {
+        Thread.sleep(5000)
+        broadcastMessage("Hello, peers!")
+      }
     }
   }
 
@@ -33,5 +37,12 @@ object PeerDiscovery {
     println(s"Broadcasting peer discovery message: $message")
     // Broadcast peer discovery message to all peers
     peers.foreach(peer => println(s"Message sent to $peer: $message"))
+  }
+
+  def restart(): Future[Unit] = {
+    for {
+      _ <- stop()
+      _ <- start()
+    } yield ()
   }
 }

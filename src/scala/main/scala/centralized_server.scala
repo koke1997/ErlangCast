@@ -10,13 +10,17 @@ object CentralizedServer {
   private var isRunning = false
 
   def startServer(port: Int): Future[Unit] = Future {
-    serverSocket = Some(new ServerSocket(port))
-    isRunning = true
-    println(s"Centralized server started on port $port")
+    if (isRunning) {
+      restartServer(port)
+    } else {
+      serverSocket = Some(new ServerSocket(port))
+      isRunning = true
+      println(s"Centralized server started on port $port")
 
-    while (isRunning) {
-      val clientSocket = serverSocket.get.accept()
-      handleClientRequest(clientSocket)
+      while (isRunning) {
+        val clientSocket = serverSocket.get.accept()
+        handleClientRequest(clientSocket)
+      }
     }
   }
 
@@ -38,5 +42,12 @@ object CentralizedServer {
     out.println(response)
 
     clientSocket.close()
+  }
+
+  def restartServer(port: Int): Future[Unit] = {
+    for {
+      _ <- stopServer()
+      _ <- startServer(port)
+    } yield ()
   }
 }

@@ -22,4 +22,9 @@ class TestReliableTransmission extends AnyFlatSpec with Matchers {
     // This is a placeholder for actual verification logic
     true should be (true)
   }
+
+  it should "restart the reliable transmission service" in {
+    val result = Await.result(ReliableTransmission.restart(), 5.seconds)
+    result shouldBe ()
+  }
 }
