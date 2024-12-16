@@ -1,27 +1,3 @@
-# Build stage for Erlang
-FROM erlang:24 AS erlang-build
-WORKDIR /app
-
-# Copy Erlang-specific files
-COPY rebar.config ./
-COPY config ./config/
-COPY src/erlang ./src/erlang/
-COPY microservices ./microservices/
-
-# Install dependencies
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
-        ffmpeg \
-        libavcodec-extra \
-        build-essential \
-        gcc \
-        make \
-    && apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
-
-# Compile Erlang
-RUN rebar3 get-deps && rebar3 compile
-
 # Build stage for Scala
 FROM ubuntu:24.04 AS scala-build
 WORKDIR /app
@@ -57,19 +33,12 @@ ENV NODE_NAME_1=node1@127.0.0.1 \
     COOKIE=erlangcast_cookie \
     DEBIAN_FRONTEND=noninteractive
 
-# Install Erlang and runtime dependencies
+# Install runtime dependencies
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-        erlang \
-        erlang-base \
-        erlang-dev \
-        erlang-tools \
-        ffmpeg \
-        libavcodec-extra \
         openjdk-11-jre-headless \
         netcat-openbsd \
         curl \
-        rebar3 \
     && apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
@@ -78,15 +47,14 @@ RUN mkdir -p /app/log /app/media/input /app/media/output && \
     chmod -R 777 /app/log /app/media
 
 # Copy artifacts and configs
-COPY --from=erlang-build /app/_build /app/_build
 COPY --from=scala-build /app/target /app/target
 COPY config ./config/
 
 # Create startup script
 RUN echo '#!/bin/sh\n\
 epmd -daemon\n\
-NODE_NAME=$NODE_NAME_1 COOKIE=$COOKIE rebar3 shell & \
-NODE_NAME=$NODE_NAME_2 COOKIE=$COOKIE rebar3 shell\n' > /usr/local/bin/start.sh && \
+NODE_NAME=$NODE_NAME_1 COOKIE=$COOKIE sbt run & \
+NODE_NAME=$NODE_NAME_2 COOKIE=$COOKIE sbt run\n' > /usr/local/bin/start.sh && \
     chmod +x /usr/local/bin/start.sh
 
 EXPOSE 8080 8081 9100-9155 9200-9255

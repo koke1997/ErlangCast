@@ -1,115 +1,132 @@
-# ErlangCast
-ErlangCast is a P2P video streaming server built with Erlang, leveraging its strengths in concurrency and distributed programming. Features include peer discovery, video chunking, reliable data transmission, and fault-tolerant architecture. Ideal for real-time streaming and decentralized applications.
+# ScalaCast
+ScalaCast is a centralized server streaming video server built with Scala, leveraging its strengths in concurrency and distributed programming. Features include centralized server, video chunking, reliable data transmission, and fault-tolerant architecture. Ideal for real-time streaming and centralized applications.
 
-## Peer Discovery
-The peer discovery feature allows peers to find each other in the network, enabling efficient communication and data sharing.
+## Centralized Server
+The centralized server feature allows clients to connect to a central server for efficient communication and data sharing.
 
-### How to Use Peer Discovery
-1. Start the peer discovery process by calling the `peer_discovery:start/0` function.
-2. Handle incoming peer discovery messages using the `peer_discovery:handle_message/1` function.
-3. Broadcast peer discovery messages using the `peer_discovery:broadcast_message/1` function.
-4. Stop the peer discovery process by calling the `peer_discovery:stop/0` function.
+### How to Use Centralized Server
+1. Start the centralized server by calling the `CentralizedServer.startServer` function.
+2. Handle client requests using the `CentralizedServer.handleClientRequest` function.
+3. Stop the centralized server by calling the `CentralizedServer.stopServer` function.
 
 ### Example
-```erlang
-% Start the peer discovery process
-peer_discovery:start().
+```scala
+import scala.concurrent.Await
+import scala.concurrent.duration._
 
-% Handle an incoming peer discovery message
-peer_discovery:handle_message("Hello, peer!").
+implicit val ec: ExecutionContext = ExecutionContext.global
 
-% Broadcast a peer discovery message
-peer_discovery:broadcast_message("Hello, peers!").
+// Start the centralized server
+Await.result(CentralizedServer.startServer(8080), 5.seconds)
 
-% Stop the peer discovery process
-peer_discovery:stop().
+// Handle a client request
+Await.result(CentralizedServer.handleClientRequest(clientSocket), 5.seconds)
+
+// Stop the centralized server
+Await.result(CentralizedServer.stopServer(), 5.seconds)
 ```
 
 ## Video Chunking
 The video chunking feature allows the system to divide video files into smaller chunks for transmission, enabling efficient streaming and data handling.
 
 ### How to Use Video Chunking
-1. Chunk a video file by calling the `video_chunking:chunk_video/2` function with the video file path and chunk size as arguments.
-2. Retrieve a specific chunk of a video file using the `video_chunking:get_chunk/2` function with the video file path and chunk index as arguments.
+1. Chunk a video file by calling the `VideoChunking.chunkVideo` function with the video file path and chunk size as arguments.
+2. Retrieve a specific chunk of a video file using the `VideoChunking.getChunk` function with the video file path and chunk index as arguments.
 
 ### Example
-```erlang
-% Chunk a video file into 1MB chunks
-video_chunking:chunk_video("path/to/video.mp4", 1048576).
+```scala
+import scala.util.{Success, Failure}
 
-% Retrieve the first chunk of the video file
-{ok, Chunk} = video_chunking:get_chunk("path/to/video.mp4", 1).
+// Chunk a video file into 1MB chunks
+VideoChunking.chunkVideo("path/to/video.mp4", 1048576) match {
+  case Success(chunks) => println(s"Video chunked into ${chunks.length} parts")
+  case Failure(exception) => println(s"Failed to chunk video: ${exception.getMessage}")
+}
+
+// Retrieve the first chunk of the video file
+VideoChunking.getChunk("path/to/video.mp4", 1) match {
+  case Success(chunk) => println(s"Retrieved chunk of size ${chunk.length}")
+  case Failure(exception) => println(s"Failed to retrieve chunk: ${exception.getMessage}")
+}
 ```
 
 ## Reliable Data Transmission
-The reliable data transmission feature ensures that data is transmitted reliably between peers, handling packet loss and retransmissions.
+The reliable data transmission feature ensures that data is transmitted reliably between clients and the server, handling packet loss and retransmissions.
 
 ### How to Use Reliable Data Transmission
-1. Send data reliably by calling the `reliable_transmission:send_data/2` function with the peer and data as arguments.
-2. Receive data reliably by calling the `reliable_transmission:receive_data/1` function with a data handler function as an argument.
+1. Send data reliably by calling the `ReliableTransmission.sendData` function with the client and data as arguments.
+2. Receive data reliably by calling the `ReliableTransmission.receiveData` function with a data handler function as an argument.
 
 ### Example
-```erlang
-% Send data reliably to a peer
-reliable_transmission:send_data(Peer, "Hello, peer!").
+```scala
+import scala.concurrent.Await
+import scala.concurrent.duration._
 
-% Define a data handler function
-DataHandler = fun(Data) ->
-    io:format("Received data: ~p~n", [Data])
-end.
+implicit val ec: ExecutionContext = ExecutionContext.global
 
-% Receive data reliably
-reliable_transmission:receive_data(DataHandler).
+// Send data reliably to a client
+Await.result(ReliableTransmission.sendData("client1", "Hello, client!"), 5.seconds)
+
+// Define a data handler function
+val dataHandler: String => Unit = data => println(s"Received data: $data")
+
+// Receive data reliably
+Await.result(ReliableTransmission.receiveData(dataHandler), 5.seconds)
 ```
 
 ## Fault-Tolerant Architecture
 The fault-tolerant architecture ensures that the system can handle failures gracefully and continue operating. This includes error handling and recovery mechanisms in various modules.
 
 ### Fault-Tolerant Features
-1. **Peer Discovery**: The `peer_discovery` module includes error handling and recovery mechanisms for peer discovery failures.
-2. **Reliable Transmission**: The `reliable_transmission` module includes error handling for retry limit reached and logs the error.
-3. **Video Chunking**: The `video_chunking` module includes error handling for file operations and chunking process.
+1. **Centralized Server**: The `CentralizedServer` module includes error handling and recovery mechanisms for server failures.
+2. **Reliable Transmission**: The `ReliableTransmission` module includes error handling for retry limit reached and logs the error.
+3. **Video Chunking**: The `VideoChunking` module includes error handling for file operations and chunking process.
 4. **System Configuration**: The `sys.config` file includes fault-tolerance configurations for the system.
 
 ### Example
-```erlang
-% Example of error handling in peer discovery
-case peer_discovery:start() of
-    ok -> io:format("Peer discovery started successfully~n");
-    {error, Reason} -> io:format("Failed to start peer discovery: ~p~n", [Reason])
-end.
+```scala
+import scala.concurrent.Await
+import scala.concurrent.duration._
 
-% Example of error handling in reliable transmission
-case reliable_transmission:send_data(Peer, "Hello, peer!") of
-    {ok, data_sent} -> io:format("Data sent successfully~n");
-    {error, retry_limit_reached} -> io:format("Failed to send data: retry limit reached~n")
-end.
+implicit val ec: ExecutionContext = ExecutionContext.global
 
-% Example of error handling in video chunking
-case video_chunking:chunk_video("path/to/video.mp4", 1048576) of
-    {ok, Chunks} -> io:format("Video chunked successfully~n");
-    {error, Reason} -> io:format("Failed to chunk video: ~p~n", [Reason])
-end.
+// Example of error handling in centralized server
+Await.result(CentralizedServer.startServer(8080), 5.seconds) match {
+  case Success(_) => println("Centralized server started successfully")
+  case Failure(exception) => println(s"Failed to start centralized server: ${exception.getMessage}")
+}
+
+// Example of error handling in reliable transmission
+Await.result(ReliableTransmission.sendData("client1", "Hello, client!"), 5.seconds) match {
+  case Success(_) => println("Data sent successfully")
+  case Failure(exception) => println(s"Failed to send data: ${exception.getMessage}")
+}
+
+// Example of error handling in video chunking
+VideoChunking.chunkVideo("path/to/video.mp4", 1048576) match {
+  case Success(chunks) => println("Video chunked successfully")
+  case Failure(exception) => println(s"Failed to chunk video: ${exception.getMessage}")
+}
 ```
 
 ## Scala Connector
-The Scala connector enables communication between the Erlang server and the Scala videoserver, leveraging Akka for actor-based communication. Scala is also used to raise the needed frontend to interact with the videoserver.
+The Scala connector enables communication between the Scala server and the Scala videoserver, leveraging Akka for actor-based communication. Scala is also used to raise the needed frontend to interact with the videoserver.
 
 ### How to Use Scala Connector
 1. Set up Scala and necessary dependencies.
-2. Use the `ScalaConnector` object to send and receive messages between Scala and Erlang.
+2. Use the `ScalaConnector` object to send and receive messages between Scala and the videoserver.
 
 ### Example
 ```scala
 import ScalaConnector._
 
 object Main extends App {
-  // Send a message to Erlang
-  sendToErlang("Hello, Erlang!")
+  // Send a message to the videoserver
+  sendToErlang("Hello, videoserver!")
 
-  // Receive a message from Erlang
+  // Receive a message from the videoserver
   val message = Await.result(receiveFromErlang(), 5.seconds)
-  println(s"Received message from Erlang: $message")
+  println(s"Received message from videoserver: $message")
 }
 ```
 
@@ -133,19 +150,19 @@ The testing section provides instructions for running unit tests and integration
 ### Running Unit Tests
 To run the unit tests, use the following command:
 ```sh
-rebar3 eunit
+sbt test
 ```
 
 ### Running Integration Tests
 To run the integration tests, use the following command:
 ```sh
-rebar3 ct
+sbt it:test
 ```
 
 ### Running Test Coverage
 To run the test coverage, use the following command:
 ```sh
-rebar3 as test cover
+sbt coverage test
 ```
 
 ## Automated Testing Workflow
@@ -174,20 +191,28 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Set up Erlang/OTP
-        uses: erlef/setup-beam@v1
+      - name: Set up Java
+        uses: actions/setup-java@v2
         with:
-          otp-version: 24.x
-          rebar3-version: 3.16.1
+          distribution: 'adopt'
+          java-version: '11'
 
-      - name: Install dependencies
-        run: rebar3 get-deps
+      - name: Set up Scala
+        run: |
+          echo "deb https://repo.scala-sbt.org/scalasbt/debian all main" | sudo tee /etc/apt/sources.list.d/sbt.list
+          echo "deb https://repo.scala-sbt.org/scalasbt/debian /" | sudo tee /etc/apt/sources.list.d/sbt_old.list
+          curl -sL "https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x2EE0EA64E40A89B84B2DF73499E82A75642AC823" | sudo apt-key add
+          sudo apt-get update
+          sudo apt-get install sbt
+
+      - name: Compile Scala code
+        run: sbt compile
 
       - name: Run unit tests
-        run: rebar3 eunit --verbose
+        run: sbt test
 
       - name: Run integration tests
-        run: rebar3 ct --verbose
+        run: sbt it:test
 ```
 
 ## Running the Project Locally
@@ -292,12 +317,13 @@ The HLS and DASH streaming options allow for adaptive bitrate streaming, providi
 3. Retrieve the HLS playlist using the `hls_streaming:get_playlist/1` function with the output directory as an argument.
 
 ### Example
-```erlang
-% Start HLS streaming
-hls_streaming:start("path/to/video.mp4", "path/to/output").
+```scala
+// Start HLS streaming
+HlsStreaming.start("path/to/video.mp4", "path/to/output")
 
-% Retrieve the HLS playlist
-{ok, Playlist} = hls_streaming:get_playlist("path/to/output").
+// Retrieve the HLS playlist
+val playlist = HlsStreaming.getPlaylist("path/to/output")
+println(s"HLS playlist: $playlist")
 ```
 
 ### How to Use DASH Streaming
@@ -306,12 +332,13 @@ hls_streaming:start("path/to/video.mp4", "path/to/output").
 3. Retrieve the DASH manifest using the `dash_streaming:get_manifest/1` function with the output directory as an argument.
 
 ### Example
-```erlang
-% Start DASH streaming
-dash_streaming:start("path/to/video.mp4", "path/to/output").
+```scala
+// Start DASH streaming
+DashStreaming.start("path/to/video.mp4", "path/to/output")
 
-% Retrieve the DASH manifest
-{ok, Manifest} = dash_streaming:get_manifest("path/to/output").
+// Retrieve the DASH manifest
+val manifest = DashStreaming.getManifest("path/to/output")
+println(s"DASH manifest: $manifest")
 ```
 
 ## Deploying the App to GitHub Pages
@@ -341,18 +368,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-
-      - name: Set up Erlang/OTP
-        uses: erlef/setup-beam@v1
-        with:
-          otp-version: 24.x
-          rebar3-version: 3.16.1
-
-      - name: Install dependencies
-        run: rebar3 get-deps
-
-      - name: Build project
-        run: rebar3 compile
 
       - name: Set up Java
         uses: actions/setup-java@v2
@@ -390,12 +405,13 @@ The RTMP streaming option allows for real-time messaging protocol streaming, pro
 3. Retrieve the RTMP stream URL using the `rtmp_streaming:get_stream_url/1` function with the output directory as an argument.
 
 ### Example
-```erlang
-% Start RTMP streaming
-rtmp_streaming:start("path/to/video.mp4", "path/to/output").
+```scala
+// Start RTMP streaming
+RtmpStreaming.start("path/to/video.mp4", "path/to/output")
 
-% Retrieve the RTMP stream URL
-{ok, StreamURL} = rtmp_streaming:get_stream_url("path/to/output").
+// Retrieve the RTMP stream URL
+val streamUrl = RtmpStreaming.getStreamUrl("path/to/output")
+println(s"RTMP stream URL: $streamUrl")
 ```
 
 ## Troubleshooting Common Issues
@@ -416,25 +432,25 @@ To build and run the project using Docker, follow these steps:
 
 1. Build the Docker image:
    ```sh
-   docker build -t erlangcast .
+   docker build -t scalacast .
    ```
 
 2. Run the Docker container:
    ```sh
-   docker run -p 8080:8080 -p 9100-9155:9100-9155 -p 9200-9255:9200-9255 erlangcast
+   docker run -p 8080:8080 -p 9100-9155:9100-9155 -p 9200-9255:9200-9255 scalacast
    ```
 
-This will start the ErlangCast project in a Docker container, making it easy to run locally.
+This will start the ScalaCast project in a Docker container, making it easy to run locally.
 
 ## Microservices Architecture
 
-The ErlangCast project now includes a microservices architecture for easier integration and stability. The microservices are designed to handle specific functionalities and can be run independently.
+The ScalaCast project now includes a microservices architecture for easier integration and stability. The microservices are designed to handle specific functionalities and can be run independently.
 
 ### Microservices Overview
 
-1. **Peer Discovery Service**: Handles peer discovery in the network.
+1. **Centralized Server Service**: Handles client connections and requests.
 2. **Video Chunking Service**: Manages video chunking for efficient streaming.
-3. **Reliable Transmission Service**: Ensures reliable data transmission between peers.
+3. **Reliable Transmission Service**: Ensures reliable data transmission between clients and the server.
 4. **Fault Tolerance Service**: Provides fault tolerance and error recovery mechanisms.
 
 ### Setting Up and Running Microservices
@@ -445,14 +461,14 @@ To set up and run the microservices, follow these steps:
 2. Navigate to the project directory.
 3. Build the Docker images for each microservice:
    ```sh
-   docker build -t peer-discovery-service -f Dockerfile .
+   docker build -t centralized-server-service -f Dockerfile .
    docker build -t video-chunking-service -f Dockerfile .
    docker build -t reliable-transmission-service -f Dockerfile .
    docker build -t fault-tolerance-service -f Dockerfile .
    ```
 4. Run the Docker containers for each microservice:
    ```sh
-   docker run -d --name peer-discovery-service peer-discovery-service
+   docker run -d --name centralized-server-service centralized-server-service
    docker run -d --name video-chunking-service video-chunking-service
    docker run -d --name reliable-transmission-service reliable-transmission-service
    docker run -d --name fault-tolerance-service fault-tolerance-service
@@ -460,41 +476,40 @@ To set up and run the microservices, follow these steps:
 
 ### Using Microservices
 
-#### Peer Discovery Service
+#### Centralized Server Service
 
-The Peer Discovery Service handles peer discovery in the network.
+The Centralized Server Service handles client connections and requests.
 
 **Functions**:
-- `start/0`: Starts the peer discovery process.
-- `stop/0`: Stops the peer discovery process.
-- `handle_message/1`: Handles incoming peer discovery messages.
-- `broadcast_message/1`: Broadcasts peer discovery messages.
+- `startServer`: Starts the centralized server.
+- `stopServer`: Stops the centralized server.
+- `handleClientRequest`: Handles client requests.
 
 #### Video Chunking Service
 
 The Video Chunking Service manages video chunking for efficient streaming.
 
 **Functions**:
-- `chunk_video/2`: Chunks a video file into smaller chunks.
-- `get_chunk/2`: Retrieves a specific chunk of a video file.
+- `chunkVideo`: Chunks a video file into smaller chunks.
+- `getChunk`: Retrieves a specific chunk of a video file.
 
 #### Reliable Transmission Service
 
-The Reliable Transmission Service ensures reliable data transmission between peers.
+The Reliable Transmission Service ensures reliable data transmission between clients and the server.
 
 **Functions**:
-- `send_data/2`: Sends data to a peer with retry mechanism.
-- `receive_data/1`: Receives data and processes it using the provided data handler.
+- `sendData`: Sends data to a client with retry mechanism.
+- `receiveData`: Receives data and processes it using the provided data handler.
 
 #### Fault Tolerance Service
 
 The Fault Tolerance Service provides fault tolerance and error recovery mechanisms.
 
 **Functions**:
-- `start/0`: Starts the fault tolerance service.
-- `stop/0`: Stops the fault tolerance service.
-- `handle_error/1`: Handles errors and logs them.
-- `recover/1`: Recovers from errors based on the error type.
+- `start`: Starts the fault tolerance service.
+- `stop`: Stops the fault tolerance service.
+- `handleError`: Handles errors and logs them.
+- `recover`: Recovers from errors based on the error type.
 
 ## Running the App on Multiple Ports
 
@@ -508,7 +523,7 @@ To run the app on multiple ports, follow these steps:
 ### Example Configuration
 
 #### `config/sys.config`
-```erlang
+```scala
 [
   {kernel, [
     {inet_dist_listen_min, 9100},
@@ -519,10 +534,10 @@ To run the app on multiple ports, follow these steps:
     {sasl_error_logger, {file, "log/sasl-error.log"}},
     {errlog_type, error}
   ]},
-  {peer_discovery, [
+  {centralized_server, [
     {port_range, {9200, 9255}},
     {broadcast_interval, 5000},
-    {max_peers, 50}
+    {max_clients, 50}
   ]},
   {fault_tolerance, [
     {retry_limit, 5},
@@ -533,63 +548,76 @@ To run the app on multiple ports, follow these steps:
     {port1, 8080},
     {port2, 8081}
   ]}
-].
+]
 ```
 
 #### `Dockerfile`
 ```Dockerfile
-# Use an official Erlang runtime as a parent image
-FROM erlang:24
-
-# Set the working directory
+# Build stage for Scala
+FROM ubuntu:24.04 AS scala-build
 WORKDIR /app
 
-# Copy the current directory contents into the container at /app
-COPY . /app
-
-# Install dependencies
+# Install Java and SBT dependencies
 RUN apt-get update && \
-    apt-get install -y ffmpeg libav-tools libavcodec-extra && \
-    rebar3 get-deps
+    apt-get install -y --no-install-recommends \
+        openjdk-11-jdk-headless \
+        curl \
+        gnupg \
+    && echo "deb https://repo.scala-sbt.org/scalasbt/debian all main" | tee /etc/apt/sources.list.d/sbt.list \
+    && curl -sL "https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x2EE0EA64E40A89B84B2DF73499E82A75642AC823" | gpg --dearmor > /etc/apt/trusted.gpg.d/sbt.gpg \
+    && apt-get update \
+    && apt-get install -y sbt \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
-# Compile the project
-RUN rebar3 compile
+# Setup SBT
+RUN mkdir -p project && \
+    echo 'sbt.version=1.8.2' > project/build.properties && \
+    echo 'addSbtPlugin("com.github.sbt" % "sbt-native-packager" % "1.9.16")\naddSbtPlugin("com.eed3si9n" % "sbt-assembly" % "2.1.1")' > project/plugins.sbt && \
+    echo 'name := "scalacast"\nversion := "0.1.0"\nscalaVersion := "2.13.8"' > build.sbt
 
-# Install Scala and sbt
-RUN echo "deb https://repo.scala-sbt.org/scalasbt/debian all main" | tee /etc/apt/sources.list.d/sbt.list && \
-    echo "deb https://repo.scala-sbt.org/scalasbt/debian /" | tee /etc/apt/sources.list.d/sbt_old.list && \
-    curl -sL "https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x2EE0EA64E40A89B84B2DF73499E82A75642AC823" | apt-key add && \
-    apt-get update && \
-    apt-get install -y sbt
-
-# Compile the Scala code
+COPY src/scala ./src/scala/
 RUN sbt compile
 
-# Copy and run the peer discovery microservice
-COPY microservices/peer_discovery_service.erl /app/microservices/
-RUN erlc /app/microservices/peer_discovery_service.erl
-CMD ["erl", "-noshell", "-s", "peer_discovery_service", "start", "-s", "init", "stop"]
+# Final runtime stage
+FROM ubuntu:24.04
+WORKDIR /app
 
-# Copy and run the video chunking microservice
-COPY microservices/video_chunking_service.erl /app/microservices/
-RUN erlc /app/microservices/video_chunking_service.erl
-CMD ["erl", "-noshell", "-s", "video_chunking_service", "chunk_video", "-s", "init", "stop"]
+ENV NODE_NAME_1=node1@127.0.0.1 \
+    NODE_NAME_2=node2@127.0.0.1 \
+    COOKIE=scalacast_cookie \
+    DEBIAN_FRONTEND=noninteractive
 
-# Copy and run the reliable transmission microservice
-COPY microservices/reliable_transmission_service.erl /app/microservices/
-RUN erlc /app/microservices/reliable_transmission_service.erl
-CMD ["erl", "-noshell", "-s", "reliable_transmission_service", "send_data", "-s", "init", "stop"]
+# Install runtime dependencies
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        openjdk-11-jre-headless \
+        netcat-openbsd \
+        curl \
+    && apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
-# Copy and run the fault tolerance microservice
-COPY microservices/fault_tolerance_service.erl /app/microservices/
-RUN erlc /app/microservices/fault_tolerance_service.erl
-CMD ["erl", "-noshell", "-s", "fault_tolerance_service", "start", "-s", "init", "stop"]
+# Setup directories
+RUN mkdir -p /app/log /app/media/input /app/media/output && \
+    chmod -R 777 /app/log /app/media
 
-# Expose the necessary ports
+# Copy artifacts and configs
+COPY --from=scala-build /app/target /app/target
+COPY config ./config/
+
+# Create startup script
+RUN echo '#!/bin/sh\n\
+epmd -daemon\n\
+NODE_NAME=$NODE_NAME_1 COOKIE=$COOKIE sbt run & \
+NODE_NAME=$NODE_NAME_2 COOKIE=$COOKIE sbt run\n' > /usr/local/bin/start.sh && \
+    chmod +x /usr/local/bin/start.sh
+
 EXPOSE 8080 8081 9100-9155 9200-9255
 
-# Define the command to run the project on both ports
-CMD ["sh", "-c", "rebar3 shell & rebar3 shell --setcookie port2 --name port2@127.0.0.1"]
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD nc -z localhost 8080 || exit 1
+
+CMD ["/usr/local/bin/start.sh"]
 ```
 
 #### `docs/index.html`
@@ -768,7 +796,7 @@ import subprocess
 import argparse
 
 def run_app(port1, port2, camera1, camera2):
-    cmd = f"rebar3 shell & rebar3 shell --setcookie port2 --name port2@127.0.0.1"
+    cmd = f"sbt run & sbt run --setcookie port2 --name port2@127.0.0.1"
     subprocess.run(cmd, shell=True)
 
 if __name__ == "__main__":
