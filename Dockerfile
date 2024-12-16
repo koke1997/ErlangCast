@@ -1,5 +1,5 @@
 # Build stage for Scala
-FROM ubuntu:24.04 AS scala-build
+FROM ubuntu:20.04 AS scala-build
 WORKDIR /app
 
 # Install Java and SBT dependencies
@@ -25,7 +25,7 @@ COPY src/scala ./src/scala/
 RUN sbt compile
 
 # Final runtime stage
-FROM ubuntu:24.04
+FROM ubuntu:20.04
 WORKDIR /app
 
 ENV NODE_NAME_1=node1@127.0.0.1 \

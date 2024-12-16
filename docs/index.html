@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Webcam Test - Scala Frontend</title>
+    <title>Webcam Test - ScalaCast</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -44,6 +44,10 @@
     <select id="port2Camera">
         <option value="">Select Camera for Port 2</option>
     </select>
+    <div id="selectedCameraInput">
+        <h2>Selected Camera Input</h2>
+        <video id="selectedCameraVideo" autoplay controls></video>
+    </div>
     <video id="videoElement" autoplay controls></video>
     <script>
         const videoElement = document.getElementById('videoElement');
@@ -52,6 +56,7 @@
         const user2Camera = document.getElementById('user2Camera');
         const port1Camera = document.getElementById('port1Camera');
         const port2Camera = document.getElementById('port2Camera');
+        const selectedCameraVideo = document.getElementById('selectedCameraVideo');
 
         function getCameras() {
             return navigator.mediaDevices.enumerateDevices()
@@ -108,6 +113,8 @@
                     .then(function(stream) {
                         videoElement.srcObject = stream;
                         videoElement.play();
+                        selectedCameraVideo.srcObject = stream;
+                        selectedCameraVideo.play();
                     })
                     .catch(function(error) {
                         console.error("Error accessing camera for User 1: ", error);
@@ -122,6 +129,8 @@
                     .then(function(stream) {
                         videoElement.srcObject = stream;
                         videoElement.play();
+                        selectedCameraVideo.srcObject = stream;
+                        selectedCameraVideo.play();
                     })
                     .catch(function(error) {
                         console.error("Error accessing camera for User 2: ", error);
@@ -136,6 +145,8 @@
                     .then(function(stream) {
                         videoElement.srcObject = stream;
                         videoElement.play();
+                        selectedCameraVideo.srcObject = stream;
+                        selectedCameraVideo.play();
                     })
                     .catch(function(error) {
                         console.error("Error accessing camera for Port 1: ", error);
@@ -150,6 +161,8 @@
                     .then(function(stream) {
                         videoElement.srcObject = stream;
                         videoElement.play();
+                        selectedCameraVideo.srcObject = stream;
+                        selectedCameraVideo.play();
                     })
                     .catch(function(error) {
                         console.error("Error accessing camera for Port 2: ", error);
